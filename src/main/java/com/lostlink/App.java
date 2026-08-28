@@ -1,4 +1,4 @@
-/*package com.lostlink;
+package com.lostandfound;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -10,7 +10,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        com.lostlink.util.DatabaseConnection.getConnection();
+        com.lostandfound.db.DatabaseConnection.getConnection();
         Label label = new Label("Campus Lost & Found System - Setup Successful!");
         StackPane root = new StackPane(label);
         Scene scene = new Scene(root, 500, 300);
@@ -23,4 +23,4 @@ public class App extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-}  */
+}
