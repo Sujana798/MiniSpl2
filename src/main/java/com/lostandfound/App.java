@@ -11,6 +11,8 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
         com.lostandfound.db.DatabaseConnection.getConnection();
+        com.lostandfound.db.DatabaseInitializer.initialize();
+        com.lostandfound.db.DatabaseSeeder.seed();
         Label label = new Label("Campus Lost & Found System - Setup Successful!");
         StackPane root = new StackPane(label);
         Scene scene = new Scene(root, 500, 300);
