@@ -47,10 +47,15 @@ public class LoginController {
     }
     @FXML
     private void handleForgotPassword(ActionEvent event) {
-        showAlert(Alert.AlertType.INFORMATION, "Coming Soon",
-                "Forgot Password feature will be added soon.");
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/forgot_password.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 450, 480));
+            stage.setTitle("Campus Lost & Found - Reset Password");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open reset password screen.");
+        }
     }
-
     @FXML
     private void handleGoToRegister(ActionEvent event) {
         try {
