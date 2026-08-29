@@ -1,24 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="12.0" xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.lostlink.controller.LoginController">
-    <padding>
-        <Insets top="30" right="30" bottom="30" left="30"/>
-    </padding>
+<StackPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.lostandfound.controller.LoginController"
+           stylesheets="@../css/style.css" styleClass="root">
 
-    <Label text="LostLink - Login" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    <VBox alignment="CENTER" spacing="20" styleClass="form-container" maxWidth="360" maxHeight="420">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
 
-    <TextField fx:id="emailField" promptText="Email"/>
-    <PasswordField fx:id="passwordField" promptText="Password"/>
+        <Label text="🔎" styleClass="icon-label"/>
+        <Label text="Campus Lost &amp; Found" styleClass="title-label"/>
+        <Label text="Sign in to continue" styleClass="subtitle-label"/>
 
-    <Button text="Login" onAction="#handleLogin" defaultButton="true"/>
-    <Button text="Don't have an account? Register" onAction="#handleGoToRegister"/>
-</VBox>
+        <GridPane hgap="10" vgap="10" maxWidth="Infinity">
+            <columnConstraints>
+                <javafx.scene.layout.ColumnConstraints minWidth="80"/>
+                <javafx.scene.layout.ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <Label text="Email:" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="emailField" promptText="you@campus.edu"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Password:" styleClass="field-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <PasswordField fx:id="passwordField" promptText="••••••••"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        </GridPane>
+
+        <Button text="Login" onAction="#handleLogin" styleClass="primary-button" maxWidth="Infinity"/>
+
+        <Hyperlink text="Forgot Password?" onAction="#handleForgotPassword" styleClass="link-label"/>
+        <Hyperlink text="Don't have an account? Register" onAction="#handleGoToRegister" styleClass="link-label"/>
+
+    </VBox>
+</StackPane>

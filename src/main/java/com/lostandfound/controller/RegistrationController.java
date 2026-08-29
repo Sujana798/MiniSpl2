@@ -1,18 +1,14 @@
-package com.lostlink.controller;
+package com.lostandfound.controller;
 
-
-import com.lostlink.dao.SQLiteUserDAO;
-import com.lostlink.service.AuthService;
+import com.lostandfound.dao.UserDao;
+import com.lostandfound.service.AuthService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -26,32 +22,26 @@ public class RegistrationController {
     private TextField emailField;
 
     @FXML
+    private TextField studentIdField;
+
+    @FXML
     private PasswordField passwordField;
 
-    @FXML
-    private ComboBox<String> roleComboBox;
-
-    private final AuthService authService = new AuthService(new SQLiteUserDAO());
-
-    @FXML
-    private void initialize() {
-        roleComboBox.getItems().addAll("REPORTER", "ADMIN_VERIFIER");
-        roleComboBox.getSelectionModel().selectFirst();
-    }
+    private final AuthService authService = new AuthService(new UserDao());
 
     @FXML
     private void handleRegister(ActionEvent event) {
         try {
-            String role = roleComboBox.getValue();
-            authService.register(
+            String recoveryCode = authService.register(
                     nameField.getText(),
                     emailField.getText(),
-                    passwordField.getText(),
-                    role
+                    studentIdField.getText(),
+                    passwordField.getText()
             );
 
-            showAlert(Alert.AlertType.INFORMATION, "Registration Successful",
-                    "Account created successfully. You can now log in.");
+            showAlert(Alert.AlertType.INFORMATION, "Save Your Recovery Code",
+                    "Registration successful!\n\nYour recovery code is:\n\n" + recoveryCode +
+                            "\n\nSave this somewhere safe. You will need it to reset your password if you forget it.");
 
             goToLogin(event);
 
@@ -71,18 +61,28 @@ public class RegistrationController {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 400, 350));
-            stage.setTitle("LostLink - Login");
+            stage.setScene(new Scene(root, 500, 500));
+            stage.setTitle("Campus Lost & Found - Login");
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open login screen.");
         }
     }
-
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(message);
+
+        Label content = new Label(message);
+        content.setWrapText(true);
+        content.setMaxWidth(380);
+        content.setStyle("-fx-font-size: 13px;");
+
+        alert.getDialogPane().setContent(content);
+        alert.getDialogPane().setPrefWidth(430);
+
+        alert.setResizable(true);
+        alert.getDialogPane().getScene().getWindow().sizeToScene();
+
         alert.showAndWait();
     }
 }

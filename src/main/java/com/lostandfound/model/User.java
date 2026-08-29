@@ -7,24 +7,23 @@ public class User {
     private String studentId;
     private String passwordHash;
     private String role; // "STUDENT" or "ADMIN"
-    private String securityQuestion;
-    private String securityAnswerHash;
+    private String recoveryCodeHash;
 
     public User() {
     }
 
     public User(int userId, String name, String email, String studentId,
-                String passwordHash, String role, String securityQuestion, String securityAnswerHash) {
+                String passwordHash, String role, String recoveryCodeHash) {
         this.userId = userId;
         this.name = name;
         this.email = email;
         this.studentId = studentId;
         this.passwordHash = passwordHash;
         this.role = role;
-        this.securityQuestion = securityQuestion;
-        this.securityAnswerHash = securityAnswerHash;
+        this.recoveryCodeHash = recoveryCodeHash;
     }
 
+    // Getters and Setters
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
 
@@ -43,9 +42,6 @@ public class User {
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 
-    public String getSecurityQuestion() { return securityQuestion; }
-    public void setSecurityQuestion(String securityQuestion) { this.securityQuestion = securityQuestion; }
-
-    public String getSecurityAnswerHash() { return securityAnswerHash; }
-    public void setSecurityAnswerHash(String securityAnswerHash) { this.securityAnswerHash = securityAnswerHash; }
+    public String getRecoveryCodeHash() { return recoveryCodeHash; }
+    public void setRecoveryCodeHash(String recoveryCodeHash) { this.recoveryCodeHash = recoveryCodeHash; }
 }

@@ -1,8 +1,9 @@
-package com.lostlink.controller;
+package com.lostandfound.controller;
 
-import com.lostlink.dao.SQLiteUserDAO;
-import com.lostlink.model.User;
-import com.lostlink.service.AuthService;
+
+import com.lostandfound.dao.UserDao;
+import com.lostandfound.model.User;
+import com.lostandfound.service.AuthService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,7 +30,7 @@ public class LoginController {
     @FXML
     private PasswordField passwordField;
 
-    private final AuthService authService = new AuthService(new SQLiteUserDAO());
+    private final AuthService authService = new AuthService(new UserDao());
 
     @FXML
     private void handleLogin(ActionEvent event) {
@@ -44,6 +45,11 @@ public class LoginController {
             showAlert(Alert.AlertType.ERROR, "Unexpected Error", "Something went wrong: " + e.getMessage());
         }
     }
+    @FXML
+    private void handleForgotPassword(ActionEvent event) {
+        showAlert(Alert.AlertType.INFORMATION, "Coming Soon",
+                "Forgot Password feature will be added soon.");
+    }
 
     @FXML
     private void handleGoToRegister(ActionEvent event) {
@@ -51,7 +57,7 @@ public class LoginController {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/registration.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 400, 400));
-            stage.setTitle("LostLink - Register");
+            stage.setTitle("Campus Lost & Found - Register");
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open registration screen.");
         }
@@ -69,7 +75,7 @@ public class LoginController {
             try {
                 Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
                 stage.setScene(new Scene(root, 400, 350));
-                stage.setTitle("LostLink - Login");
+                stage.setTitle("Campus Lost & Found - Login");
             } catch (IOException ex) {
                 showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not return to login screen.");
             }
@@ -80,7 +86,7 @@ public class LoginController {
         layout.setPadding(new Insets(30));
 
         stage.setScene(new Scene(layout, 400, 300));
-        stage.setTitle("LostLink - Welcome");
+        stage.setTitle("Campus Lost & Found - Welcome");
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

@@ -1,0 +1,61 @@
+.root {
+    -fx-background-color: linear-gradient(to bottom right, #4A90E2, #145DA0);
+}
+
+.form-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 35;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);
+}
+
+.title-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #145DA0;
+}
+
+.subtitle-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #777777;
+}
+
+.field-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #333333;
+    -fx-font-weight: bold;
+}
+
+.text-field, .password-field {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #cccccc;
+    -fx-padding: 8;
+    -fx-font-size: 13px;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #4A90E2;
+}
+
+.primary-button {
+    -fx-background-color: #145DA0;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #0d3d6b;
+}
+
+.link-label {
+    -fx-text-fill: #4A90E2;
+    -fx-font-size: 12px;
+}
+
+.icon-label {
+    -fx-font-size: 40px;
+}
