@@ -1,5 +1,3 @@
-### Campus Lost and Found Management System
-
 ### Project Overview
 
 A JavaFX-based desktop application designed to manage lost and found items within a university campus. The system provides a centralized platform for reporting, matching, claiming, verifying, and recovering lost items.

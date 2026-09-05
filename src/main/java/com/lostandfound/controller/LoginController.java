@@ -1,6 +1,6 @@
 package com.lostandfound.controller;
 
-
+import com.lostandfound.controller.StudentDashboardController;
 import com.lostandfound.dao.UserDao;
 import com.lostandfound.model.User;
 import com.lostandfound.service.AuthService;
@@ -37,7 +37,7 @@ public class LoginController {
         try {
             User user = authService.login(emailField.getText(), passwordField.getText());
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            showSuccessScreen(user, stage);
+            goToDashboard(user, stage);
 
         } catch (IllegalArgumentException e) {
             showAlert(Alert.AlertType.ERROR, "Login Failed", e.getMessage());
@@ -68,30 +68,26 @@ public class LoginController {
         }
     }
 
-    private void showSuccessScreen(User user, Stage stage) {
-        Label title = new Label("Login Successful");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+    @FXML
+    private void goToDashboard(User user, Stage stage) {
+        try {
+            String fxmlPath = user.getRole().equals("ADMIN")
+                    ? "/fxml/dashboard_admin.fxml"
+                    : "/fxml/dashboard_student.fxml";
 
-        Label nameLabel = new Label("Welcome, " + user.getName() + "!");
-        Label roleLabel = new Label("Role: " + user.getRole());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
 
-        Button logoutButton = new Button("Log Out");
-        logoutButton.setOnAction(e -> {
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
-                stage.setScene(new Scene(root, 400, 350));
-                stage.setTitle("Campus Lost & Found - Login");
-            } catch (IOException ex) {
-                showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not return to login screen.");
+            if (!user.getRole().equals("ADMIN")) {
+                StudentDashboardController controller = loader.getController();
+                controller.setCurrentUser(user);
             }
-        });
 
-        VBox layout = new VBox(15, title, nameLabel, roleLabel, logoutButton);
-        layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(30));
-
-        stage.setScene(new Scene(layout, 400, 300));
-        stage.setTitle("Campus Lost & Found - Welcome");
+            stage.setScene(new Scene(root, 800, 550));
+            stage.setTitle("Campus Lost & Found - Dashboard");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load dashboard.");
+        }
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
