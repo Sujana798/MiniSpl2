@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.lostandfound.controller.ReportItemController"
+            style="-fx-background-color: #f4f6f8;">
+
+    <VBox spacing="18" style="-fx-padding: 30; -fx-background-color: #f4f6f8;" maxWidth="600">
+
+        <Label text="Report a Lost or Found Item" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+        <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 25;">
+
+            <GridPane hgap="12" vgap="14">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="120"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <Label text="Report Type:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="typeComboBox" promptText="Select type" maxWidth="Infinity"
+                          GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Category:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="categoryComboBox" promptText="Select category" maxWidth="Infinity"
+                          GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Title:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="titleField" promptText="e.g. Black Wallet"
+                           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Brand:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="brandField" promptText="e.g. Samsung (optional)"
+                           GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Color:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="colorField" promptText="e.g. Black (optional)"
+                           GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <Label text="Location:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <TextField fx:id="locationField" promptText="e.g. Library, 2nd Floor"
+                           GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                <Label text="Date:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <DatePicker fx:id="datePicker" maxWidth="Infinity"
+                            GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                <Label text="Description:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                <TextArea fx:id="descriptionField" promptText="Any extra details..." prefRowCount="4" wrapText="true"
+                          GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+            </GridPane>
+
+            <Button text="Submit Report" onAction="#handleSubmit" maxWidth="Infinity"
+                    style="-fx-background-color: #145DA0; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10;"/>
+
+        </VBox>
+    </VBox>
+</ScrollPane>
