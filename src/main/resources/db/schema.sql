@@ -8,3 +8,4 @@ CREATE TABLE IF NOT EXISTS users (
     recovery_code_hash,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+

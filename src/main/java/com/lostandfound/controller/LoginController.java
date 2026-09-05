@@ -1,23 +1,17 @@
 package com.lostandfound.controller;
 
-import com.lostandfound.controller.StudentDashboardController;
 import com.lostandfound.dao.UserDao;
 import com.lostandfound.model.User;
 import com.lostandfound.service.AuthService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -78,7 +72,10 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            if (!user.getRole().equals("ADMIN")) {
+            if (user.getRole().equals("ADMIN")) {
+                AdminDashboardController controller = loader.getController();
+                controller.setCurrentUser(user);
+            } else {
                 StudentDashboardController controller = loader.getController();
                 controller.setCurrentUser(user);
             }
