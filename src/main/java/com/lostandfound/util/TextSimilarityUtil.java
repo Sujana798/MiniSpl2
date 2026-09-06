@@ -4,10 +4,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Small reusable helpers for comparing free-text fields (title/description,
- * location) used by the weighted matching algorithm in WeightedMatchingStrategy.
- */
 public final class TextSimilarityUtil {
 
     private static final Set<String> STOPWORDS = new HashSet<>(Arrays.asList(

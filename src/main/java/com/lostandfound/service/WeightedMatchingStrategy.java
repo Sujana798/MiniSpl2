@@ -7,18 +7,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
-/**
- * Concrete Strategy implementing the project's weighted matching algorithm:
- *   Category match          - 25%
- *   Description similarity  - 30%
- *   Location similarity     - 20%
- *   Date/time proximity     - 15%
- *   Attribute similarity    - 10%
- *
- * Each criterion is scored 0-100 independently and safely handles missing
- * or empty fields (never throws, never divides by zero). The weights are
- * public constants so the algorithm is easy to explain and verify.
- */
 public class WeightedMatchingStrategy implements MatchingStrategy {
 
     public static final double CATEGORY_WEIGHT = 0.25;
@@ -124,8 +112,6 @@ public class WeightedMatchingStrategy implements MatchingStrategy {
         }
 
         if (comparableAttributes == 0) {
-            // Not enough attribute data on either side - neutral score so this
-            // criterion neither strongly helps nor hurts the overall match.
             return 50.0;
         }
 

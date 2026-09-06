@@ -1,6 +1,5 @@
 package com.lostandfound.service;
 
-/** Holds the individual criterion scores and final outcome of one match calculation. */
 public class MatchScoreResult {
 
     private final double categoryScore;

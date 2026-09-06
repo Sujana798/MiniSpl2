@@ -1,10 +1,5 @@
 package com.lostandfound.model;
 
-/**
- * Read-only view model combining a Match row with the full details of its
- * Lost and Found reports. Built by MatchService for the Admin Match Review
- * table and Match Details dialog - not persisted itself.
- */
 public class MatchView {
 
     private int matchId;

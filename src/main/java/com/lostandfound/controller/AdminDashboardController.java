@@ -1,12 +1,7 @@
 package com.lostandfound.controller;
 
-import com.lostandfound.dao.ItemReportDao;
-import com.lostandfound.dao.MatchDao;
 import com.lostandfound.dao.UserDao;
-import com.lostandfound.model.MatchView;
 import com.lostandfound.model.User;
-import com.lostandfound.service.MatchService;
-import com.lostandfound.service.WeightedMatchingStrategy;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,25 +12,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Controller for the Admin Dashboard.
@@ -54,8 +43,6 @@ public class AdminDashboardController {
 
     private User currentUser;
     private final UserDao userDao = new UserDao();
-    private final MatchService matchService = new MatchService(
-            new ItemReportDao(), new MatchDao(), new WeightedMatchingStrategy(), userDao);
 
     // Sample data standing in for the future "claims" table (Design Doc Section 3 & 7.4).
     private final List<ClaimRow> sampleClaims = createSampleClaims();
@@ -92,7 +79,10 @@ public class AdminDashboardController {
 
     @FXML
     private void handleMatchReview() {
-        buildMatchReview();
+        showPlaceholderPanel("Match Review",
+                "Review candidate matches generated between lost and found reports. This panel will " +
+                        "connect to the matches table and the Strategy-based MatchingService once implemented " +
+                        "(see Design Document, Section 7.1).");
     }
 
     @FXML
@@ -206,290 +196,6 @@ public class AdminDashboardController {
 
         panel.getChildren().addAll(heading, note, table);
         contentArea.getChildren().setAll(panel);
-    }
-
-    private void buildMatchReview() {
-        VBox panel = new VBox(15);
-
-        Label heading = new Label("Match Review");
-        heading.getStyleClass().add("dashboard-heading");
-
-        Label note = new Label(
-                "Automatically generated Lost <-> Found matches. Weighted scoring: Category 25%, " +
-                        "Description 30%, Location 20%, Date 15%, Attributes 10%.");
-        note.getStyleClass().add("section-note");
-        note.setWrapText(true);
-
-        TextField searchField = new TextField();
-        searchField.setPromptText("Search by item title, category, or location...");
-        searchField.setPrefWidth(280);
-
-        ComboBox<String> confidenceFilter = new ComboBox<>();
-        confidenceFilter.getItems().addAll("All Confidence", "HIGH", "MEDIUM", "LOW");
-        confidenceFilter.getSelectionModel().selectFirst();
-
-        ComboBox<String> statusFilter = new ComboBox<>();
-        statusFilter.getItems().addAll("All Status", "PENDING", "CONFIRMED", "REJECTED");
-        statusFilter.getSelectionModel().selectFirst();
-
-        Button refreshButton = new Button("Refresh Matches");
-        refreshButton.getStyleClass().add("secondary-button");
-
-        HBox filterRow = new HBox(10, searchField, confidenceFilter, statusFilter, refreshButton);
-        filterRow.setAlignment(Pos.CENTER_LEFT);
-
-        TableView<MatchView> table = new TableView<>();
-        table.setPrefHeight(320);
-
-        TableColumn<MatchView, String> lostCol = new TableColumn<>("Lost Item");
-        lostCol.setCellValueFactory(new PropertyValueFactory<>("lostTitle"));
-
-        TableColumn<MatchView, String> foundCol = new TableColumn<>("Found Item");
-        foundCol.setCellValueFactory(new PropertyValueFactory<>("foundTitle"));
-
-        TableColumn<MatchView, String> categoryCol = new TableColumn<>("Category");
-        categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
-
-        TableColumn<MatchView, String> locationCol = new TableColumn<>("Location");
-        locationCol.setCellValueFactory(new PropertyValueFactory<>("lostLocation"));
-
-        TableColumn<MatchView, String> scoreCol = new TableColumn<>("Score");
-        scoreCol.setCellValueFactory(new PropertyValueFactory<>("matchScoreDisplay"));
-
-        TableColumn<MatchView, String> confidenceCol = new TableColumn<>("Confidence");
-        confidenceCol.setCellValueFactory(new PropertyValueFactory<>("confidence"));
-        confidenceCol.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String value, boolean empty) {
-                super.updateItem(value, empty);
-                if (empty || value == null) {
-                    setText(null);
-                    setStyle("");
-                    return;
-                }
-                setText(value);
-                switch (value) {
-                    case "HIGH" -> setStyle("-fx-text-fill: #2e8b57; -fx-font-weight: bold;");
-                    case "MEDIUM" -> setStyle("-fx-text-fill: #b8860b; -fx-font-weight: bold;");
-                    case "LOW" -> setStyle("-fx-text-fill: #999999; -fx-font-weight: bold;");
-                    default -> setStyle("");
-                }
-            }
-        });
-
-        TableColumn<MatchView, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
-        statusCol.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String value, boolean empty) {
-                super.updateItem(value, empty);
-                if (empty || value == null) {
-                    setText(null);
-                    setStyle("");
-                    return;
-                }
-                setText(value);
-                switch (value) {
-                    case "PENDING" -> setStyle("-fx-text-fill: #145DA0; -fx-font-weight: bold;");
-                    case "CONFIRMED" -> setStyle("-fx-text-fill: #2e8b57; -fx-font-weight: bold;");
-                    case "REJECTED" -> setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-                    default -> setStyle("");
-                }
-            }
-        });
-
-        TableColumn<MatchView, Void> actionsCol = new TableColumn<>("Actions");
-        actionsCol.setCellFactory(col -> new TableCell<>() {
-            private final Button viewBtn = new Button("View Details");
-            private final Button rejectBtn = new Button("Reject");
-            private final HBox box = new HBox(6, viewBtn, rejectBtn);
-
-            {
-                viewBtn.getStyleClass().add("secondary-button");
-                rejectBtn.getStyleClass().add("danger-button");
-
-                viewBtn.setOnAction(e -> showMatchDetailsDialog(getTableView().getItems().get(getIndex())));
-
-                rejectBtn.setOnAction(e -> {
-                    MatchView mv = getTableView().getItems().get(getIndex());
-                    matchService.rejectMatch(mv.getMatchId());
-                    showAlert(Alert.AlertType.INFORMATION, "Match Rejected",
-                            "The match between \"" + mv.getLostTitle() + "\" and \"" + mv.getFoundTitle()
-                                    + "\" has been rejected.");
-                    buildMatchReview();
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                    return;
-                }
-                MatchView mv = getTableView().getItems().get(getIndex());
-                rejectBtn.setDisable("REJECTED".equals(mv.getStatus()));
-                setGraphic(box);
-            }
-        });
-
-        table.getColumns().addAll(lostCol, foundCol, categoryCol, locationCol, scoreCol, confidenceCol, statusCol, actionsCol);
-
-        List<MatchView> allMatches = matchService.getAllMatchViews();
-        table.setItems(FXCollections.observableArrayList(allMatches));
-
-        Runnable applyFilter = () -> {
-            String keyword = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
-            String confSel = confidenceFilter.getValue();
-            String statSel = statusFilter.getValue();
-
-            List<MatchView> filtered = allMatches.stream()
-                    .filter(mv -> keyword.isEmpty()
-                            || mv.getLostTitle().toLowerCase().contains(keyword)
-                            || mv.getFoundTitle().toLowerCase().contains(keyword)
-                            || mv.getCategory().toLowerCase().contains(keyword)
-                            || mv.getLostLocation().toLowerCase().contains(keyword))
-                    .filter(mv -> confSel == null || confSel.startsWith("All") || confSel.equals(mv.getConfidence()))
-                    .filter(mv -> statSel == null || statSel.startsWith("All") || statSel.equals(mv.getStatus()))
-                    .collect(Collectors.toList());
-
-            table.setItems(FXCollections.observableArrayList(filtered));
-        };
-
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> applyFilter.run());
-        confidenceFilter.setOnAction(e -> applyFilter.run());
-        statusFilter.setOnAction(e -> applyFilter.run());
-
-        refreshButton.setOnAction(e -> {
-            matchService.recalculateAllMatches();
-            showAlert(Alert.AlertType.INFORMATION, "Matches Refreshed",
-                    "All lost/found reports have been re-evaluated for matches.");
-            buildMatchReview();
-        });
-
-        panel.getChildren().addAll(heading, note, filterRow);
-
-        if (allMatches.isEmpty()) {
-            Label emptyLabel = new Label(
-                    "No matches yet. New matches are generated automatically when reports are submitted, " +
-                            "or click Refresh Matches to re-scan existing reports.");
-            emptyLabel.setWrapText(true);
-            emptyLabel.setStyle("-fx-text-fill: #777; -fx-font-size: 12px;");
-            panel.getChildren().add(emptyLabel);
-        } else {
-            panel.getChildren().add(table);
-        }
-
-        contentArea.getChildren().setAll(panel);
-    }
-
-    private void showMatchDetailsDialog(MatchView mv) {
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle("Match Details");
-
-        VBox root = new VBox(15);
-        root.setStyle("-fx-padding: 25; -fx-background-color: white;");
-
-        Label heading = new Label("Match Details");
-        heading.getStyleClass().add("dashboard-heading");
-
-        HBox itemsRow = new HBox(20,
-                buildReportDetailBox("Lost Item", mv.getLostTitle(), mv.getLostCategory(), mv.getLostLocation(),
-                        mv.getLostDate(), mv.getLostBrand(), mv.getLostColor(), mv.getLostDescription(), mv.getLostReporterName()),
-                buildReportDetailBox("Found Item", mv.getFoundTitle(), mv.getFoundCategory(), mv.getFoundLocation(),
-                        mv.getFoundDate(), mv.getFoundBrand(), mv.getFoundColor(), mv.getFoundDescription(), mv.getFoundReporterName())
-        );
-
-        VBox criteriaBox = new VBox(8);
-        criteriaBox.setStyle("-fx-background-color: #f4f6f8; -fx-background-radius: 10; -fx-padding: 15;");
-        Label criteriaTitle = new Label("Matching Criteria Breakdown");
-        criteriaTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-        criteriaBox.getChildren().addAll(
-                criteriaTitle,
-                buildCriterionRow("Category Match (25%)", mv.getCategoryScore()),
-                buildCriterionRow("Description Similarity (30%)", mv.getDescriptionScore()),
-                buildCriterionRow("Location Similarity (20%)", mv.getLocationScore()),
-                buildCriterionRow("Date Proximity (15%)", mv.getDateScore()),
-                buildCriterionRow("Attribute Similarity (10%)", mv.getAttributeScore())
-        );
-
-        HBox finalScoreRow = new HBox(10);
-        finalScoreRow.setAlignment(Pos.CENTER_LEFT);
-        Label finalLabel = new Label("Final Match Score:");
-        finalLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
-        Label finalValue = new Label(String.format("%.0f%%  (%s Confidence)", mv.getMatchScore(), mv.getConfidence()));
-        finalValue.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #145DA0;");
-        finalScoreRow.getChildren().addAll(finalLabel, finalValue);
-
-        Label reasonTitle = new Label("Why these were matched:");
-        reasonTitle.setStyle("-fx-font-weight: bold;");
-        Label reasonText = new Label(mv.getReason());
-        reasonText.setWrapText(true);
-        reasonText.setStyle("-fx-text-fill: #555;");
-
-        Button closeButton = new Button("Close");
-        closeButton.getStyleClass().add("primary-button");
-        closeButton.setOnAction(e -> dialog.close());
-
-        root.getChildren().addAll(heading, itemsRow, criteriaBox, finalScoreRow, reasonTitle, reasonText, closeButton);
-
-        ScrollPane scrollPane = new ScrollPane(root);
-        scrollPane.setFitToWidth(true);
-
-        dialog.setScene(new Scene(scrollPane, 640, 640));
-        dialog.showAndWait();
-    }
-
-    private VBox buildReportDetailBox(String heading, String title, String category, String location,
-                                      String date, String brand, String color, String description, String reporterName) {
-        VBox box = new VBox(6);
-        box.setStyle("-fx-background-color: #f4f6f8; -fx-background-radius: 10; -fx-padding: 15;");
-        box.setPrefWidth(280);
-
-        Label headingLabel = new Label(heading);
-        headingLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #145DA0;");
-
-        Label titleLabel = new Label("Title: " + safe(title));
-        Label categoryLabel = new Label("Category: " + safe(category));
-        Label locationLabel = new Label("Location: " + safe(location));
-        Label dateLabel = new Label("Date: " + safe(date));
-        Label brandLabel = new Label("Brand: " + safe(brand));
-        Label colorLabel = new Label("Color: " + safe(color));
-        Label reporterLabel = new Label("Reported by: " + safe(reporterName));
-        Label descLabel = new Label("Description: " + safe(description));
-        descLabel.setWrapText(true);
-
-        for (Label l : List.of(titleLabel, categoryLabel, locationLabel, dateLabel, brandLabel, colorLabel, reporterLabel, descLabel)) {
-            l.setStyle("-fx-font-size: 12px;");
-        }
-
-        box.getChildren().addAll(headingLabel, titleLabel, categoryLabel, locationLabel, dateLabel,
-                brandLabel, colorLabel, reporterLabel, descLabel);
-
-        return box;
-    }
-
-    private HBox buildCriterionRow(String label, double score) {
-        HBox row = new HBox(10);
-        row.setAlignment(Pos.CENTER_LEFT);
-
-        Label nameLabel = new Label(label);
-        nameLabel.setPrefWidth(220);
-        nameLabel.setStyle("-fx-font-size: 12px;");
-
-        ProgressBar bar = new ProgressBar(score / 100.0);
-        bar.setPrefWidth(200);
-
-        Label valueLabel = new Label(String.format("%.0f%%", score));
-        valueLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
-
-        row.getChildren().addAll(nameLabel, bar, valueLabel);
-        return row;
-    }
-
-    private String safe(String value) {
-        return (value == null || value.trim().isEmpty()) ? "-" : value;
     }
 
     private void buildClaimVerification() {

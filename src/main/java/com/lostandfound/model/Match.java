@@ -6,8 +6,8 @@ public class Match {
     private int lostReportId;
     private int foundReportId;
     private double matchScore;
-    private String confidence;   // "HIGH", "MEDIUM", "LOW"
-    private String status;       // "PENDING", "CONFIRMED", "REJECTED"
+    private String confidence;
+    private String status;
 
     private double categoryScore;
     private double descriptionScore;

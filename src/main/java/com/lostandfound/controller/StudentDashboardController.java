@@ -19,6 +19,10 @@ import com.lostandfound.model.ItemReport;
 import javafx.scene.layout.GridPane;
 import java.util.List;
 import java.io.IOException;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
+import javafx.geometry.Pos;
+import com.lostandfound.dao.ItemReportDao;
 
 public class StudentDashboardController {
 
@@ -49,9 +53,12 @@ public class StudentDashboardController {
         Label heading = new Label("Dashboard Overview");
         heading.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
+        ItemReportDao itemReportDao = new ItemReportDao();
+        int myReportsCount = itemReportDao.countByReporterId(currentUser.getUserId());
+
         HBox statRow = new HBox(20);
         statRow.getChildren().addAll(
-                buildStatCard("0", "My Reports"),
+                buildStatCard(String.valueOf(myReportsCount), "My Reports"),
                 buildStatCard("0", "Active Claims"),
                 buildStatCard("0", "Notifications")
         );
@@ -167,9 +174,102 @@ public class StudentDashboardController {
 
     @FXML
     private void handleBrowseItems() {
-        showPlaceholder("Browse Items", "This feature is coming soon.");
+        contentArea.getChildren().clear();
+        contentArea.setStyle("-fx-padding: 30; -fx-background-color: #f4f6f8;");
+        contentArea.setSpacing(15);
+
+        Label heading = new Label("Browse Lost & Found Items");
+        heading.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+
+        ComboBox<String> typeFilter = new ComboBox<>();
+        typeFilter.getItems().addAll("All", "LOST", "FOUND");
+        typeFilter.setValue("All");
+
+        ComboBox<String> categoryFilter = new ComboBox<>();
+        categoryFilter.getItems().addAll("All", "Electronics", "Documents", "Bags", "Clothing", "Accessories", "Others");
+        categoryFilter.setValue("All");
+
+        HBox filterBox = new HBox(10);
+        filterBox.setAlignment(Pos.CENTER_LEFT);
+        filterBox.getChildren().addAll(new Label("Type:"), typeFilter, new Label("Category:"), categoryFilter);
+
+        VBox resultsBox = new VBox(12);
+
+        ItemReportDao itemReportDao = new ItemReportDao();
+        List<ItemReport> allReports = itemReportDao.findAll();
+
+        Runnable refreshResults = () -> {
+            resultsBox.getChildren().clear();
+
+            String selectedType = typeFilter.getValue();
+            String selectedCategory = categoryFilter.getValue();
+
+            List<ItemReport> filtered = allReports.stream()
+                    .filter(r -> selectedType.equals("All") || r.getType().equals(selectedType))
+                    .filter(r -> selectedCategory.equals("All") || r.getCategory().equals(selectedCategory))
+                    .toList();
+
+            if (filtered.isEmpty()) {
+                Label emptyLabel = new Label("No items found matching your filters.");
+                emptyLabel.setStyle("-fx-text-fill: #777;");
+                resultsBox.getChildren().add(emptyLabel);
+                return;
+            }
+
+            for (ItemReport report : filtered) {
+                resultsBox.getChildren().add(buildBrowseCard(report));
+            }
+        };
+
+        typeFilter.setOnAction(e -> refreshResults.run());
+        categoryFilter.setOnAction(e -> refreshResults.run());
+
+        refreshResults.run();
+
+        contentArea.getChildren().addAll(heading, filterBox, resultsBox);
     }
 
+    private VBox buildBrowseCard(ItemReport report) {
+        VBox card = new VBox(6);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
+
+        String badgeColor = report.getType().equals("LOST") ? "#e74c3c" : "#2e8b57";
+
+        Label typeBadge = new Label(report.getType());
+        typeBadge.setStyle("-fx-background-color: " + badgeColor + "; -fx-text-fill: white; " +
+                "-fx-padding: 2 10; -fx-background-radius: 10; -fx-font-size: 11px; -fx-font-weight: bold;");
+
+        Label titleLabel = new Label(report.getTitle());
+        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
+
+        HBox topRow = new HBox(10, typeBadge, titleLabel);
+        topRow.setAlignment(Pos.CENTER_LEFT);
+
+        Label detailsLabel = new Label(
+                "Category: " + report.getCategory() +
+                        (report.getBrand() != null && !report.getBrand().isBlank() ? "   |   Brand: " + report.getBrand() : "") +
+                        (report.getColor() != null && !report.getColor().isBlank() ? "   |   Color: " + report.getColor() : "")
+        );
+        detailsLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
+
+        Label locationLabel = new Label("Location: " + report.getLocation() + "   |   Date: " + report.getDateOccurred());
+        locationLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
+
+        Label statusLabel = new Label("Status: " + report.getStatus());
+        statusLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #145DA0; -fx-font-weight: bold;");
+
+        card.getChildren().addAll(topRow, detailsLabel, locationLabel, statusLabel);
+
+        if (report.getDescription() != null && !report.getDescription().isBlank()) {
+            Label descLabel = new Label(report.getDescription());
+            descLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #777; -fx-font-style: italic;");
+            descLabel.setWrapText(true);
+            card.getChildren().add(descLabel);
+        }
+
+        return card;
+    }
     @FXML
     private void handleMyClaims() {
         showPlaceholder("My Claims", "This feature is coming soon.");
