@@ -12,16 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Orchestrates the Match Review module: generates candidate matches using
- * the injected MatchingStrategy (Strategy Pattern), persists them through
- * MatchDao, and builds the MatchView rows the Admin UI displays.
- */
 public class MatchService {
 
-    /** Automatic matches are only stored at MEDIUM confidence or above. */
-    private static final double MIN_SCORE_TO_STORE = 60.0;
 
+    private static final double MIN_SCORE_TO_STORE = 60.0;
     private final ItemReportDao itemReportDao;
     private final MatchDao matchDao;
     private final MatchingStrategy matchingStrategy;
@@ -35,7 +29,7 @@ public class MatchService {
         this.userDao = userDao;
     }
 
-    /** Called right after a new Lost/Found report is submitted. */
+
     public void generateMatchesForReport(ItemReport newReport) {
         if (newReport == null || !isMatchable(newReport)) {
             return;
@@ -53,7 +47,7 @@ public class MatchService {
         }
     }
 
-    /** Re-evaluates every currently matchable Lost/Found report pair. */
+
     public void recalculateAllMatches() {
         List<ItemReport> all = itemReportDao.findAll();
 
@@ -86,7 +80,7 @@ public class MatchService {
             ItemReport lost = itemReportDao.findById(m.getLostReportId());
             ItemReport found = itemReportDao.findById(m.getFoundReportId());
             if (lost == null || found == null) {
-                continue; // one of the reports was removed - skip safely
+                continue; //
             }
             views.add(buildMatchView(m, lost, found));
         }
@@ -94,9 +88,7 @@ public class MatchService {
         return views;
     }
 
-    // ---------------------------------------------------------------
 
-    /** Only REPORTED/MATCHED reports may take part in matching (not CLAIMED, RETURNED, or CLOSED). */
     private boolean isMatchable(ItemReport report) {
         String status = report.getStatus();
         return "REPORTED".equalsIgnoreCase(status) || "MATCHED".equalsIgnoreCase(status);
@@ -107,13 +99,13 @@ public class MatchService {
         ItemReport found = "FOUND".equalsIgnoreCase(reportA.getType()) ? reportA : reportB;
 
         if (lost.getReportId() == found.getReportId()) {
-            return; // never match a report with itself
+            return;
         }
 
         MatchScoreResult result = matchingStrategy.calculateScore(lost, found);
 
         if (result.getTotalScore() < MIN_SCORE_TO_STORE) {
-            return; // below 60% - normally do not create an automatic match
+            return;
         }
 
         Match match = new Match();

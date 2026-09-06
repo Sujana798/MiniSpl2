@@ -17,8 +17,6 @@ public final class TextSimilarityUtil {
     public static String normalize(String text) {
         return text == null ? "" : text.trim().toLowerCase();
     }
-
-    /** Splits text into lowercase word tokens, dropping stopwords and very short tokens. */
     public static Set<String> tokenize(String text) {
         Set<String> tokens = new HashSet<>();
         if (text == null || text.trim().isEmpty()) {
@@ -33,7 +31,6 @@ public final class TextSimilarityUtil {
         return tokens;
     }
 
-    /** Jaccard similarity (intersection / union) between two token sets. Returns 0.0-1.0. */
     public static double jaccardSimilarity(Set<String> a, Set<String> b) {
         if (a.isEmpty() || b.isEmpty()) {
             return 0.0;

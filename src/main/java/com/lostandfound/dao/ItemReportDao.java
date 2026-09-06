@@ -47,10 +47,25 @@ public class ItemReportDao {
             return false;
         }
     }
+
     public int countByReporterId(int reporterId) {
         String sql = "SELECT COUNT(*) AS total FROM item_reports WHERE reporter_id = ?";
 
         Connection conn = DatabaseConnection.getConnection();
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, reporterId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Failed to count reports: " + e.getMessage());
+        }
+
+        return 0;
+    }
 
     public ItemReport findById(int reportId) {
         String sql = "SELECT * FROM item_reports WHERE report_id = ?";
@@ -73,19 +88,6 @@ public class ItemReportDao {
         return null;
     }
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, reporterId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("total");
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Failed to count reports: " + e.getMessage());
-        }
-
-        return 0;
-    }
     public List<ItemReport> findByReporterId(int reporterId) {
         String sql = "SELECT * FROM item_reports WHERE reporter_id = ? ORDER BY created_at DESC";
         List<ItemReport> reports = new ArrayList<>();

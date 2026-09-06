@@ -43,15 +43,10 @@ public class AdminDashboardController {
 
     private User currentUser;
     private final UserDao userDao = new UserDao();
-
-    // Sample data standing in for the future "claims" table (Design Doc Section 3 & 7.4).
     private final List<ClaimRow> sampleClaims = createSampleClaims();
 
     public void setCurrentUser(User user) {
         this.currentUser = user;
-
-        // Defensive role check: this screen must only be reached via the
-        // ADMIN branch of LoginController.goToDashboard.
         if (!"ADMIN".equalsIgnoreCase(user.getRole())) {
             throw new IllegalStateException("AdminDashboardController requires a user with ADMIN role.");
         }
@@ -60,9 +55,6 @@ public class AdminDashboardController {
         handleDashboardOverview();
     }
 
-    // ---------------------------------------------------------------
-    // Sidebar navigation handlers
-    // ---------------------------------------------------------------
 
     @FXML
     private void handleDashboardOverview() {
@@ -119,10 +111,6 @@ public class AdminDashboardController {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not return to login screen.");
         }
     }
-
-    // ---------------------------------------------------------------
-    // Panel builders
-    // ---------------------------------------------------------------
 
     private void buildDashboardOverview() {
         VBox panel = new VBox(20);

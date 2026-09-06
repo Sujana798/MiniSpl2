@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     student_id TEXT,
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL CHECK(role IN ('STUDENT', 'ADMIN')),
-    recovery_code_hash,
+    recovery_code_hash TEXT NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -26,11 +26,11 @@ CREATE TABLE IF NOT EXISTS item_reports (
 );
 
 CREATE TABLE IF NOT EXISTS matches (
-                                       match_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                       lost_report_id INTEGER NOT NULL,
-                                       found_report_id INTEGER NOT NULL,
-                                       match_score REAL NOT NULL,
-                                       confidence TEXT NOT NULL CHECK(confidence IN ('HIGH', 'MEDIUM', 'LOW')),
+    match_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lost_report_id INTEGER NOT NULL,
+    found_report_id INTEGER NOT NULL,
+    match_score REAL NOT NULL,
+    confidence TEXT NOT NULL CHECK(confidence IN ('HIGH', 'MEDIUM', 'LOW')),
     status TEXT NOT NULL DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'CONFIRMED', 'REJECTED')),
     category_score REAL NOT NULL,
     description_score REAL NOT NULL,
@@ -42,6 +42,17 @@ CREATE TABLE IF NOT EXISTS matches (
     UNIQUE (lost_report_id, found_report_id),
     FOREIGN KEY (lost_report_id) REFERENCES item_reports(report_id),
     FOREIGN KEY (found_report_id) REFERENCES item_reports(report_id)
-    );
+);
 
-
+CREATE TABLE IF NOT EXISTS claims (
+    claim_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    match_id INTEGER NOT NULL,
+    claimant_id INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'APPROVED', 'REJECTED', 'RETURNED')),
+    reviewed_by INTEGER,
+    reviewed_at TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (match_id) REFERENCES matches(match_id),
+    FOREIGN KEY (claimant_id) REFERENCES users(user_id),
+    FOREIGN KEY (reviewed_by) REFERENCES users(user_id)
+);

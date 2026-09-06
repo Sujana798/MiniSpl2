@@ -9,6 +9,12 @@ import com.lostandfound.service.MatchService;
 import com.lostandfound.service.WeightedMatchingStrategy;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import com.lostandfound.dao.MatchDao;
+import com.lostandfound.dao.UserDao;
+import com.lostandfound.service.MatchService;
+import com.lostandfound.service.WeightedMatchingStrategy;
+import com.lostandfound.model.ItemReport;
+import com.lostandfound.dao.ItemReportDao;
 
 public class ReportItemController {
 
@@ -58,7 +64,7 @@ public class ReportItemController {
         try {
             String dateStr = datePicker.getValue() != null ? datePicker.getValue().toString() : null;
 
-            itemReportService.submitReport(
+            ItemReport newReport = itemReportService.submitReport(
                     currentUser.getUserId(),
                     typeComboBox.getValue(),
                     categoryComboBox.getValue(),
@@ -69,6 +75,10 @@ public class ReportItemController {
                     locationField.getText(),
                     dateStr
             );
+
+            MatchService matchService = new MatchService(
+                    new ItemReportDao(), new MatchDao(), new WeightedMatchingStrategy(), new UserDao());
+            matchService.generateMatchesForReport(newReport);
 
             showAlert(Alert.AlertType.INFORMATION, "Success", "Your report has been submitted successfully.");
             clearForm();

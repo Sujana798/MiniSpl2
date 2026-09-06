@@ -25,7 +25,7 @@
             <Button text="📢 Report Item" onAction="#handleReportItem" maxWidth="Infinity" styleClass="sidebar-button"/>
             <Button text="📋 My Reports" onAction="#handleMyReports" maxWidth="Infinity" styleClass="sidebar-button"/>
             <Button text="🔍 Browse Items" onAction="#handleBrowseItems" maxWidth="Infinity" styleClass="sidebar-button"/>
-            <Button text="✅ My Claims" onAction="#handleMyClaims" maxWidth="Infinity" styleClass="sidebar-button"/>
+            <Button text="🔗 My Matches" onAction="#handleMyClaims" maxWidth="Infinity" styleClass="sidebar-button"/>
             <Button text="🔔 Notifications" onAction="#handleNotifications" maxWidth="Infinity" styleClass="sidebar-button"/>
         </VBox>
     </left>

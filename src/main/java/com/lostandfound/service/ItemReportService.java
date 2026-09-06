@@ -13,26 +13,22 @@ public class ItemReportService {
         this.matchService = matchService;
     }
 
-    public void submitReport(int reporterId, String type, String category, String brand,
-                             String color, String title, String description,
-                             String location, String dateOccurred) {
+    public ItemReport submitReport(int reporterId, String type, String category, String brand,
+                                   String color, String title, String description,
+                                   String location, String dateOccurred) {
 
         if (type == null || type.trim().isEmpty()) {
             throw new IllegalArgumentException("Please select whether this is a Lost or Found item.");
         }
-
         if (category == null || category.trim().isEmpty()) {
             throw new IllegalArgumentException("Please select a category.");
         }
-
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Please enter a title for the item.");
         }
-
         if (location == null || location.trim().isEmpty()) {
             throw new IllegalArgumentException("Please enter a location.");
         }
-
         if (dateOccurred == null || dateOccurred.trim().isEmpty()) {
             throw new IllegalArgumentException("Please select a date.");
         }
@@ -54,12 +50,6 @@ public class ItemReportService {
             throw new IllegalStateException("Failed to submit report. Please try again.");
         }
 
-        // Automatically look for matches against opposite-type reports.
-        // A matching failure must never block a report that already saved successfully.
-        try {
-            matchService.generateMatchesForReport(report);
-        } catch (Exception e) {
-            System.out.println("Matching failed for report #" + report.getReportId() + ": " + e.getMessage());
-        }
+        return report;
     }
 }

@@ -23,6 +23,13 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.geometry.Pos;
 import com.lostandfound.dao.ItemReportDao;
+import com.lostandfound.dao.ClaimDao;
+import com.lostandfound.dao.MatchDao;
+import com.lostandfound.dao.ItemReportDao;
+import com.lostandfound.model.Claim;
+import com.lostandfound.model.Match;
+import com.lostandfound.model.ItemReport;
+import java.util.List;
 
 public class StudentDashboardController {
 
@@ -272,7 +279,95 @@ public class StudentDashboardController {
     }
     @FXML
     private void handleMyClaims() {
-        showPlaceholder("My Claims", "This feature is coming soon.");
+        contentArea.getChildren().clear();
+        contentArea.setStyle("-fx-padding: 30; -fx-background-color: #f4f6f8;");
+        contentArea.setSpacing(15);
+
+        Label heading = new Label("My Matches & Claims");
+        heading.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        contentArea.getChildren().add(heading);
+
+        ItemReportDao itemReportDao = new ItemReportDao();
+        MatchDao matchDao = new MatchDao();
+        ClaimDao claimDao = new ClaimDao();
+
+        List<ItemReport> myReports = itemReportDao.findByReporterId(currentUser.getUserId());
+        List<Match> allMatches = matchDao.findAll();
+
+        List<Match> myMatches = allMatches.stream()
+                .filter(m -> !"REJECTED".equalsIgnoreCase(m.getStatus()))
+                .filter(m -> myReports.stream().anyMatch(r ->
+                        r.getReportId() == m.getLostReportId() || r.getReportId() == m.getFoundReportId()))
+                .toList();
+
+        if (myMatches.isEmpty()) {
+            Label emptyLabel = new Label("No matches found for your reports yet.");
+            emptyLabel.setStyle("-fx-text-fill: #777;");
+            contentArea.getChildren().add(emptyLabel);
+            return;
+        }
+
+        for (Match match : myMatches) {
+            ItemReport lost = itemReportDao.findById(match.getLostReportId());
+            ItemReport found = itemReportDao.findById(match.getFoundReportId());
+            boolean alreadyClaimed = claimDao.existsForMatch(match.getMatchId());
+
+            contentArea.getChildren().add(buildMatchCard(match, lost, found, claimDao));
+        }
+    }
+
+    private VBox buildMatchCard(Match match, ItemReport lost, ItemReport found, ClaimDao claimDao) {
+        VBox card = new VBox(8);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
+
+        Label scoreLabel = new Label(String.format("Match Score: %.0f%% (%s)", match.getMatchScore(), match.getConfidence()));
+        scoreLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #145DA0;");
+
+        Label lostLabel = new Label("Lost: " + (lost != null ? lost.getTitle() + " - " + lost.getLocation() : "N/A"));
+        lostLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #e74c3c;");
+
+        Label foundLabel = new Label("Found: " + (found != null ? found.getTitle() + " - " + found.getLocation() : "N/A"));
+        foundLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #2e8b57;");
+
+        Label reasonLabel = new Label(match.getMatchReason());
+        reasonLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #999; -fx-font-style: italic;");
+        reasonLabel.setWrapText(true);
+
+        card.getChildren().addAll(scoreLabel, lostLabel, foundLabel, reasonLabel);
+
+        boolean alreadyClaimed = claimDao.existsForMatch(match.getMatchId());
+
+        if (alreadyClaimed) {
+            Label claimedLabel = new Label("✔ Claim already submitted for this match");
+            claimedLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #145DA0; -fx-font-weight: bold;");
+            card.getChildren().add(claimedLabel);
+        } else {
+            Button claimButton = new Button("This is Mine — Submit Claim");
+            claimButton.setStyle("-fx-background-color: #145DA0; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand;");
+            claimButton.setOnAction(e -> submitClaim(match, claimDao));
+            card.getChildren().add(claimButton);
+        }
+
+        return card;
+    }
+
+    private void submitClaim(Match match, ClaimDao claimDao) {
+        Claim claim = new Claim();
+        claim.setMatchId(match.getMatchId());
+        claim.setClaimantId(currentUser.getUserId());
+        claim.setStatus("PENDING");
+
+        boolean success = claimDao.insertClaim(claim);
+
+        if (success) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Your claim has been submitted for review.");
+            alert.showAndWait();
+            handleMyClaims();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to submit claim. Please try again.");
+            alert.showAndWait();
+        }
     }
 
     @FXML

@@ -23,7 +23,7 @@ public class User {
         this.recoveryCodeHash = recoveryCodeHash;
     }
 
-    // Getters and Setters
+
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
 

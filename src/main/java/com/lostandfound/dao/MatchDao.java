@@ -35,12 +35,6 @@ public class MatchDao {
         return Optional.empty();
     }
 
-    /**
-     * Inserts a new match, or updates the score of an existing Lost-Found
-     * pair when recalculated. A pair that an admin already REJECTED is left
-     * untouched so recalculation cannot silently un-reject it. This is the
-     * single write path used to prevent duplicate Lost-Found match pairs.
-     */
     public void saveOrUpdateMatch(Match match) {
         Optional<Match> existing = findByPair(match.getLostReportId(), match.getFoundReportId());
 
