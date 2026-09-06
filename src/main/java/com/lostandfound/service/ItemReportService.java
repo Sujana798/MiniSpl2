@@ -6,9 +6,11 @@ import com.lostandfound.model.ItemReport;
 public class ItemReportService {
 
     private final ItemReportDao itemReportDao;
+    private final MatchService matchService;
 
-    public ItemReportService(ItemReportDao itemReportDao) {
+    public ItemReportService(ItemReportDao itemReportDao, MatchService matchService) {
         this.itemReportDao = itemReportDao;
+        this.matchService = matchService;
     }
 
     public void submitReport(int reporterId, String type, String category, String brand,
@@ -50,6 +52,14 @@ public class ItemReportService {
         boolean success = itemReportDao.insertReport(report);
         if (!success) {
             throw new IllegalStateException("Failed to submit report. Please try again.");
+        }
+
+        // Automatically look for matches against opposite-type reports.
+        // A matching failure must never block a report that already saved successfully.
+        try {
+            matchService.generateMatchesForReport(report);
+        } catch (Exception e) {
+            System.out.println("Matching failed for report #" + report.getReportId() + ": " + e.getMessage());
         }
     }
 }

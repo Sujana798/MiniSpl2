@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class ItemReportDao {
 
         Connection conn = DatabaseConnection.getConnection();
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, report.getReporterId());
             ps.setString(2, report.getType());
@@ -32,12 +33,40 @@ public class ItemReportDao {
             ps.setString(10, report.getStatus());
 
             ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    report.setReportId(keys.getInt(1));
+                }
+            }
+
             return true;
 
         } catch (SQLException e) {
             System.out.println("Failed to insert item report: " + e.getMessage());
             return false;
         }
+    }
+
+    public ItemReport findById(int reportId) {
+        String sql = "SELECT * FROM item_reports WHERE report_id = ?";
+
+        Connection conn = DatabaseConnection.getConnection();
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, reportId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToReport(rs);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Failed to find report: " + e.getMessage());
+        }
+
+        return null;
     }
 
     public List<ItemReport> findByReporterId(int reporterId) {

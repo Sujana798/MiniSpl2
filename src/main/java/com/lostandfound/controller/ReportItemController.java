@@ -1,8 +1,12 @@
 package com.lostandfound.controller;
 
 import com.lostandfound.dao.ItemReportDao;
+import com.lostandfound.dao.MatchDao;
+import com.lostandfound.dao.UserDao;
 import com.lostandfound.model.User;
 import com.lostandfound.service.ItemReportService;
+import com.lostandfound.service.MatchService;
+import com.lostandfound.service.WeightedMatchingStrategy;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -32,7 +36,10 @@ public class ReportItemController {
     @FXML
     private TextArea descriptionField;
 
-    private final ItemReportService itemReportService = new ItemReportService(new ItemReportDao());
+    private final ItemReportService itemReportService = new ItemReportService(
+            new ItemReportDao(),
+            new MatchService(new ItemReportDao(), new MatchDao(), new WeightedMatchingStrategy(), new UserDao())
+    );
 
     private User currentUser;
 

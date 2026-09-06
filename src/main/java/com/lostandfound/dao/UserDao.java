@@ -98,6 +98,27 @@ public class UserDao {
         return null;
     }
 
+    public User findById(int userId) {
+        String sql = "SELECT * FROM users WHERE user_id = ?";
+
+        Connection conn = DatabaseConnection.getConnection();
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Failed to find user by id: " + e.getMessage());
+        }
+
+        return null;
+    }
+
     public boolean emailExists(String email) {
         return findByEmail(email) != null;
     }

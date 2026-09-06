@@ -25,4 +25,23 @@ CREATE TABLE IF NOT EXISTS item_reports (
     FOREIGN KEY (reporter_id) REFERENCES users(user_id)
 );
 
+CREATE TABLE IF NOT EXISTS matches (
+                                       match_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                       lost_report_id INTEGER NOT NULL,
+                                       found_report_id INTEGER NOT NULL,
+                                       match_score REAL NOT NULL,
+                                       confidence TEXT NOT NULL CHECK(confidence IN ('HIGH', 'MEDIUM', 'LOW')),
+    status TEXT NOT NULL DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'CONFIRMED', 'REJECTED')),
+    category_score REAL NOT NULL,
+    description_score REAL NOT NULL,
+    location_score REAL NOT NULL,
+    date_score REAL NOT NULL,
+    attribute_score REAL NOT NULL,
+    match_reason TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (lost_report_id, found_report_id),
+    FOREIGN KEY (lost_report_id) REFERENCES item_reports(report_id),
+    FOREIGN KEY (found_report_id) REFERENCES item_reports(report_id)
+    );
+
 
