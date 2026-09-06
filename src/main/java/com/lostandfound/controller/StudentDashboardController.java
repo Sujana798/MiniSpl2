@@ -14,7 +14,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+import com.lostandfound.dao.ItemReportDao;
+import com.lostandfound.model.ItemReport;
+import javafx.scene.layout.GridPane;
+import java.util.List;
 import java.io.IOException;
 
 public class StudentDashboardController {
@@ -117,7 +120,49 @@ public class StudentDashboardController {
 
     @FXML
     private void handleMyReports() {
-        showPlaceholder("My Reports", "This feature is coming soon.");
+        contentArea.getChildren().clear();
+        contentArea.setStyle("-fx-padding: 30; -fx-background-color: #f4f6f8;");
+        contentArea.setSpacing(15);
+
+        Label heading = new Label("My Reports");
+        heading.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        contentArea.getChildren().add(heading);
+
+        ItemReportDao itemReportDao = new ItemReportDao();
+        List<ItemReport> myReports = itemReportDao.findByReporterId(currentUser.getUserId());
+
+        if (myReports.isEmpty()) {
+            Label emptyLabel = new Label("You haven't submitted any reports yet.");
+            emptyLabel.setStyle("-fx-text-fill: #777;");
+            contentArea.getChildren().add(emptyLabel);
+            return;
+        }
+
+        for (ItemReport report : myReports) {
+            contentArea.getChildren().add(buildReportCard(report));
+        }
+    }
+
+    private VBox buildReportCard(ItemReport report) {
+        VBox card = new VBox(6);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
+
+        Label titleLabel = new Label(report.getTitle() + "  (" + report.getType() + ")");
+        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
+
+        Label detailsLabel = new Label(
+                "Category: " + report.getCategory() +
+                        "   |   Location: " + report.getLocation() +
+                        "   |   Date: " + report.getDateOccurred()
+        );
+        detailsLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
+
+        Label statusLabel = new Label("Status: " + report.getStatus());
+        statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #145DA0; -fx-font-weight: bold;");
+
+        card.getChildren().addAll(titleLabel, detailsLabel, statusLabel);
+        return card;
     }
 
     @FXML
