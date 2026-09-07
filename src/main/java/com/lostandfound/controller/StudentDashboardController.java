@@ -336,12 +336,21 @@ public class StudentDashboardController {
 
         card.getChildren().addAll(scoreLabel, lostLabel, foundLabel, reasonLabel);
 
-        boolean alreadyClaimed = claimDao.existsForMatch(match.getMatchId());
+        Claim existingClaim = claimDao.findByMatchId(match.getMatchId());
 
-        if (alreadyClaimed) {
-            Label claimedLabel = new Label("✔ Claim already submitted for this match");
-            claimedLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #145DA0; -fx-font-weight: bold;");
-            card.getChildren().add(claimedLabel);
+        if (existingClaim != null) {
+            String statusColor = switch (existingClaim.getStatus()) {
+                case "PENDING" -> "#b8860b";
+                case "APPROVED" -> "#145DA0";
+                case "REJECTED" -> "#e74c3c";
+                case "RETURNED" -> "#2e8b57";
+                default -> "#555";
+            };
+
+            Label claimStatusLabel = new Label("Claim Status: " + existingClaim.getStatus());
+            claimStatusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: " + statusColor + ";");
+            card.getChildren().add(claimStatusLabel);
+
         } else {
             Button claimButton = new Button("This is Mine — Submit Claim");
             claimButton.setStyle("-fx-background-color: #145DA0; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand;");

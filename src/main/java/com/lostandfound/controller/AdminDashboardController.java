@@ -1,6 +1,12 @@
 package com.lostandfound.controller;
 
+import com.lostandfound.dao.ClaimDao;
+import com.lostandfound.dao.ItemReportDao;
+import com.lostandfound.dao.MatchDao;
 import com.lostandfound.dao.UserDao;
+import com.lostandfound.model.Claim;
+import com.lostandfound.model.ItemReport;
+import com.lostandfound.model.Match;
 import com.lostandfound.model.User;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -13,7 +19,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -23,16 +28,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Controller for the Admin Dashboard.
- * Reuses UserDao/User exactly as defined for the Student side.
- * Report/Match/Claim data does not exist in the database yet (see Design
- * Document phases), so the Claim Verification workflow is demonstrated
- * against an in-memory sample list until the real "claims" table exists.
- */
 public class AdminDashboardController {
 
     @FXML
@@ -43,7 +40,6 @@ public class AdminDashboardController {
 
     private User currentUser;
     private final UserDao userDao = new UserDao();
-    private final List<ClaimRow> sampleClaims = createSampleClaims();
 
     public void setCurrentUser(User user) {
         this.currentUser = user;
@@ -55,7 +51,6 @@ public class AdminDashboardController {
         handleDashboardOverview();
     }
 
-
     @FXML
     private void handleDashboardOverview() {
         buildDashboardOverview();
@@ -64,17 +59,13 @@ public class AdminDashboardController {
     @FXML
     private void handleManageReports() {
         showPlaceholderPanel("Lost & Found Report Management",
-                "Review, filter, and manage all lost and found item reports submitted by students. " +
-                        "This panel will connect to the lost_reports/found_reports tables once the reporting " +
-                        "module is implemented (see Design Document, Sections 3 and 4).");
+                "Review, filter, and manage all lost and found item reports submitted by students.");
     }
 
     @FXML
     private void handleMatchReview() {
         showPlaceholderPanel("Match Review",
-                "Review candidate matches generated between lost and found reports. This panel will " +
-                        "connect to the matches table and the Strategy-based MatchingService once implemented " +
-                        "(see Design Document, Section 7.1).");
+                "Review candidate matches generated between lost and found reports.");
     }
 
     @FXML
@@ -90,8 +81,7 @@ public class AdminDashboardController {
     @FXML
     private void handleAnalytics() {
         showPlaceholderPanel("Reports & Analytics",
-                "Basic analytics such as open cases, resolved cases, and average resolution time will " +
-                        "be available once report and claim data exists.");
+                "Basic analytics such as open cases, resolved cases, and average resolution time.");
     }
 
     @FXML
@@ -121,7 +111,9 @@ public class AdminDashboardController {
         int totalUsers = userDao.getAllUsers().size();
         int totalStudents = userDao.countByRole("STUDENT");
         int totalAdmins = userDao.countByRole("ADMIN");
-        long pendingClaims = sampleClaims.stream().filter(c -> "PENDING".equals(c.getStatus())).count();
+        long pendingClaims = new ClaimDao().findAll().stream()
+                .filter(c -> "PENDING".equals(c.getStatus()))
+                .count();
 
         HBox statRow = new HBox(20,
                 createStatCard(String.valueOf(totalUsers), "Total Users"),
@@ -193,93 +185,109 @@ public class AdminDashboardController {
         heading.getStyleClass().add("dashboard-heading");
 
         Label note = new Label(
-                "Core workflow: Claim -> Verification -> Approve/Reject -> Return Confirmation -> Case Closure. " +
-                        "Sample data shown below; will connect to the real claims table once implemented.");
+                "Workflow: Claim -> Verification -> Approve/Reject -> Return Confirmation -> Case Closure.");
         note.getStyleClass().add("section-note");
         note.setWrapText(true);
 
-        TableView<ClaimRow> table = new TableView<>();
-        table.setItems(FXCollections.observableArrayList(sampleClaims));
+        ClaimDao claimDao = new ClaimDao();
+        MatchDao matchDao = new MatchDao();
+        ItemReportDao itemReportDao = new ItemReportDao();
 
-        TableColumn<ClaimRow, Integer> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        List<Claim> claims = claimDao.findAll();
 
-        TableColumn<ClaimRow, String> itemCol = new TableColumn<>("Item");
-        itemCol.setCellValueFactory(new PropertyValueFactory<>("itemDescription"));
+        VBox listBox = new VBox(12);
 
-        TableColumn<ClaimRow, String> claimantCol = new TableColumn<>("Claimant");
-        claimantCol.setCellValueFactory(new PropertyValueFactory<>("claimant"));
-
-        TableColumn<ClaimRow, String> scoreCol = new TableColumn<>("Match Score");
-        scoreCol.setCellValueFactory(new PropertyValueFactory<>("matchScore"));
-
-        TableColumn<ClaimRow, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
-        statusCol.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String status, boolean empty) {
-                super.updateItem(status, empty);
-                if (empty || status == null) {
-                    setText(null);
-                    setStyle("");
-                    return;
-                }
-                setText(status);
-                switch (status) {
-                    case "PENDING" -> setStyle("-fx-text-fill: #b8860b; -fx-font-weight: bold;");
-                    case "APPROVED" -> setStyle("-fx-text-fill: #145DA0; -fx-font-weight: bold;");
-                    case "REJECTED" -> setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-                    case "RETURNED" -> setStyle("-fx-text-fill: #2e8b57; -fx-font-weight: bold;");
-                    default -> setStyle("");
-                }
+        if (claims.isEmpty()) {
+            Label emptyLabel = new Label("No claims submitted yet.");
+            emptyLabel.setStyle("-fx-text-fill: #777;");
+            listBox.getChildren().add(emptyLabel);
+        } else {
+            for (Claim claim : claims) {
+                listBox.getChildren().add(buildClaimCard(claim, matchDao, itemReportDao, claimDao));
             }
-        });
+        }
 
-        TableColumn<ClaimRow, Void> actionsCol = new TableColumn<>("Actions");
-        actionsCol.setCellFactory(col -> new TableCell<>() {
-            private final Button approveBtn = new Button("Approve");
-            private final Button rejectBtn = new Button("Reject");
-            private final Button returnBtn = new Button("Confirm Return");
-            private final HBox box = new HBox(6, approveBtn, rejectBtn, returnBtn);
-
-            {
-                approveBtn.getStyleClass().add("success-button");
-                rejectBtn.getStyleClass().add("danger-button");
-                returnBtn.getStyleClass().add("secondary-button");
-
-                approveBtn.setOnAction(e -> updateStatus("APPROVED"));
-                rejectBtn.setOnAction(e -> updateStatus("REJECTED"));
-                returnBtn.setOnAction(e -> updateStatus("RETURNED"));
-            }
-
-            private void updateStatus(String newStatus) {
-                ClaimRow row = getTableView().getItems().get(getIndex());
-                row.setStatus(newStatus);
-                getTableView().refresh();
-                showAlert(Alert.AlertType.INFORMATION, "Claim Updated",
-                        "Claim #" + row.getId() + " (" + row.getItemDescription() + ") is now " + newStatus + ".");
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                    return;
-                }
-                ClaimRow row = getTableView().getItems().get(getIndex());
-                approveBtn.setDisable(!"PENDING".equals(row.getStatus()));
-                rejectBtn.setDisable(!"PENDING".equals(row.getStatus()));
-                returnBtn.setDisable(!"APPROVED".equals(row.getStatus()));
-                setGraphic(box);
-            }
-        });
-
-        table.getColumns().addAll(idCol, itemCol, claimantCol, scoreCol, statusCol, actionsCol);
-        table.setPrefHeight(280);
-
-        panel.getChildren().addAll(heading, note, table);
+        panel.getChildren().addAll(heading, note, listBox);
         contentArea.getChildren().setAll(panel);
+    }
+
+    private VBox buildClaimCard(Claim claim, MatchDao matchDao, ItemReportDao itemReportDao, ClaimDao claimDao) {
+        VBox card = new VBox(8);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
+
+        Match match = matchDao.findAll().stream()
+                .filter(m -> m.getMatchId() == claim.getMatchId())
+                .findFirst()
+                .orElse(null);
+
+        String itemInfo = "Unknown item";
+        if (match != null) {
+            ItemReport lost = itemReportDao.findById(match.getLostReportId());
+            ItemReport found = itemReportDao.findById(match.getFoundReportId());
+            itemInfo = "Lost: " + (lost != null ? lost.getTitle() : "N/A") +
+                    "   |   Found: " + (found != null ? found.getTitle() : "N/A") +
+                    String.format("   |   Score: %.0f%%", match.getMatchScore());
+        }
+
+        User claimant = userDao.findById(claim.getClaimantId());
+        String claimantName = claimant != null ? claimant.getName() : "Unknown";
+
+        Label claimLabel = new Label("Claim #" + claim.getClaimId() + " by " + claimantName);
+        claimLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        Label detailsLabel = new Label(itemInfo);
+        detailsLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
+        detailsLabel.setWrapText(true);
+
+        String statusColor = switch (claim.getStatus()) {
+            case "PENDING" -> "#b8860b";
+            case "APPROVED" -> "#145DA0";
+            case "REJECTED" -> "#e74c3c";
+            case "RETURNED" -> "#2e8b57";
+            default -> "#555";
+        };
+
+        Label statusLabel = new Label("Status: " + claim.getStatus());
+        statusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: " + statusColor + ";");
+
+        card.getChildren().addAll(claimLabel, detailsLabel, statusLabel);
+
+        HBox actions = new HBox(8);
+
+        if ("PENDING".equals(claim.getStatus())) {
+            Button approveBtn = new Button("Approve");
+            approveBtn.getStyleClass().add("success-button");
+            approveBtn.setOnAction(e -> {
+                claimDao.updateStatus(claim.getClaimId(), "APPROVED", currentUser.getUserId());
+                handleClaimVerification();
+            });
+
+            Button rejectBtn = new Button("Reject");
+            rejectBtn.getStyleClass().add("danger-button");
+            rejectBtn.setOnAction(e -> {
+                claimDao.updateStatus(claim.getClaimId(), "REJECTED", currentUser.getUserId());
+                handleClaimVerification();
+            });
+
+            actions.getChildren().addAll(approveBtn, rejectBtn);
+
+        } else if ("APPROVED".equals(claim.getStatus())) {
+            Button returnBtn = new Button("Confirm Return");
+            returnBtn.getStyleClass().add("secondary-button");
+            returnBtn.setOnAction(e -> {
+                claimDao.updateStatus(claim.getClaimId(), "RETURNED", currentUser.getUserId());
+                handleClaimVerification();
+            });
+
+            actions.getChildren().add(returnBtn);
+        }
+
+        if (!actions.getChildren().isEmpty()) {
+            card.getChildren().add(actions);
+        }
+
+        return card;
     }
 
     private void showPlaceholderPanel(String title, String message) {
@@ -295,10 +303,6 @@ public class AdminDashboardController {
         panel.getChildren().addAll(titleLabel, messageLabel);
         contentArea.getChildren().setAll(panel);
     }
-
-    // ---------------------------------------------------------------
-    // Helpers
-    // ---------------------------------------------------------------
 
     private VBox createStatCard(String number, String label) {
         VBox card = new VBox();
@@ -316,47 +320,11 @@ public class AdminDashboardController {
         return card;
     }
 
-    private List<ClaimRow> createSampleClaims() {
-        List<ClaimRow> list = new ArrayList<>();
-        list.add(new ClaimRow(1, "Blue Backpack", "Ayesha Rahman", "92%", "PENDING"));
-        list.add(new ClaimRow(2, "Student ID Card", "Tanvir Hasan", "88%", "PENDING"));
-        list.add(new ClaimRow(3, "Black Wallet", "Nusrat Jahan", "75%", "APPROVED"));
-        return list;
-    }
-
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    /**
-     * Temporary in-memory row used only to demonstrate the claim workflow
-     * in the UI. Replace with a real Claim model/DAO once the "claims"
-     * table exists (Design Document Section 3).
-     */
-    public static class ClaimRow {
-        private final int id;
-        private final String itemDescription;
-        private final String claimant;
-        private final String matchScore;
-        private String status;
-
-        public ClaimRow(int id, String itemDescription, String claimant, String matchScore, String status) {
-            this.id = id;
-            this.itemDescription = itemDescription;
-            this.claimant = claimant;
-            this.matchScore = matchScore;
-            this.status = status;
-        }
-
-        public int getId() { return id; }
-        public String getItemDescription() { return itemDescription; }
-        public String getClaimant() { return claimant; }
-        public String getMatchScore() { return matchScore; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
     }
 }

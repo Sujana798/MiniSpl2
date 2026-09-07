@@ -58,6 +58,26 @@ public class ClaimDao {
         return false;
     }
 
+    public Claim findByMatchId(int matchId) {
+        String sql = "SELECT * FROM claims WHERE match_id = ?";
+
+        Connection conn = DatabaseConnection.getConnection();
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, matchId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToClaim(rs);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Failed to find claim by match: " + e.getMessage());
+        }
+
+        return null;
+    }
+
     public List<Claim> findByClaimantId(int claimantId) {
         String sql = "SELECT * FROM claims WHERE claimant_id = ? ORDER BY created_at DESC";
         List<Claim> claims = new ArrayList<>();
