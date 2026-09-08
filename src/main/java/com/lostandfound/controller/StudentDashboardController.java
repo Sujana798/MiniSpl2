@@ -30,6 +30,8 @@ import com.lostandfound.model.Claim;
 import com.lostandfound.model.Match;
 import com.lostandfound.model.ItemReport;
 import java.util.List;
+import com.lostandfound.dao.NotificationDao;
+import com.lostandfound.model.Notification;
 
 public class StudentDashboardController {
 
@@ -63,11 +65,14 @@ public class StudentDashboardController {
         ItemReportDao itemReportDao = new ItemReportDao();
         int myReportsCount = itemReportDao.countByReporterId(currentUser.getUserId());
 
+        NotificationDao notificationDao = new NotificationDao();
+        int unreadCount = notificationDao.countUnread(currentUser.getUserId());
+
         HBox statRow = new HBox(20);
         statRow.getChildren().addAll(
                 buildStatCard(String.valueOf(myReportsCount), "My Reports"),
                 buildStatCard("0", "Active Claims"),
-                buildStatCard("0", "Notifications")
+                buildStatCard(String.valueOf(unreadCount), "Notifications")
         );
 
         HBox ctaCard = new HBox(20);
@@ -381,7 +386,56 @@ public class StudentDashboardController {
 
     @FXML
     private void handleNotifications() {
-        showPlaceholder("Notifications", "This feature is coming soon.");
+        contentArea.getChildren().clear();
+        contentArea.setStyle("-fx-padding: 30; -fx-background-color: #f4f6f8;");
+        contentArea.setSpacing(15);
+
+        Label heading = new Label("Notifications");
+        heading.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        contentArea.getChildren().add(heading);
+
+        NotificationDao notificationDao = new NotificationDao();
+        List<Notification> notifications = notificationDao.findByUserId(currentUser.getUserId());
+
+        if (notifications.isEmpty()) {
+            Label emptyLabel = new Label("You have no notifications yet.");
+            emptyLabel.setStyle("-fx-text-fill: #777;");
+            contentArea.getChildren().add(emptyLabel);
+            return;
+        }
+
+        for (Notification notification : notifications) {
+            contentArea.getChildren().add(buildNotificationCard(notification, notificationDao));
+        }
+    }
+
+    private VBox buildNotificationCard(Notification notification, NotificationDao notificationDao) {
+        VBox card = new VBox(6);
+        String bgColor = notification.isRead() ? "white" : "#eaf2fb";
+        card.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 10; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
+
+        Label messageLabel = new Label(notification.getMessage());
+        messageLabel.setStyle("-fx-font-size: 13px; " + (notification.isRead() ? "" : "-fx-font-weight: bold;"));
+        messageLabel.setWrapText(true);
+
+        Label timeLabel = new Label(notification.getCreatedAt());
+        timeLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #999;");
+
+        card.getChildren().addAll(messageLabel, timeLabel);
+
+        if (!notification.isRead()) {
+            Button markReadBtn = new Button("Mark as Read");
+            markReadBtn.setStyle("-fx-background-color: #145DA0; -fx-text-fill: white; -fx-background-radius: 6; " +
+                    "-fx-font-size: 11px; -fx-cursor: hand;");
+            markReadBtn.setOnAction(e -> {
+                notificationDao.markAsRead(notification.getNotificationId());
+                handleNotifications();
+            });
+            card.getChildren().add(markReadBtn);
+        }
+
+        return card;
     }
 
     private void showPlaceholder(String title, String message) {

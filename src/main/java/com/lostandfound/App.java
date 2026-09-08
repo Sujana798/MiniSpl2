@@ -8,6 +8,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import com.lostandfound.notification.NotificationPublisher;
+import com.lostandfound.notification.InAppNotificationObserver;
+import com.lostandfound.dao.NotificationDao;
 
 public class App extends Application {
 
@@ -16,6 +19,7 @@ public class App extends Application {
         DatabaseConnection.getConnection();
         DatabaseInitializer.initialize();
         DatabaseSeeder.seed();
+        NotificationPublisher.getInstance().subscribe(new InAppNotificationObserver(new NotificationDao()));
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
         Parent root = loader.load();

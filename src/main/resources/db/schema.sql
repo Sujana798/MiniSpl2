@@ -56,3 +56,12 @@ CREATE TABLE IF NOT EXISTS claims (
     FOREIGN KEY (claimant_id) REFERENCES users(user_id),
     FOREIGN KEY (reviewed_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    message TEXT NOT NULL,
+    is_read INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);

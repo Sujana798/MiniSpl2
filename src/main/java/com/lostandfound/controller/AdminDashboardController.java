@@ -8,6 +8,7 @@ import com.lostandfound.model.Claim;
 import com.lostandfound.model.ItemReport;
 import com.lostandfound.model.Match;
 import com.lostandfound.model.User;
+import com.lostandfound.notification.NotificationPublisher;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -260,6 +261,8 @@ public class AdminDashboardController {
             approveBtn.getStyleClass().add("success-button");
             approveBtn.setOnAction(e -> {
                 claimDao.updateStatus(claim.getClaimId(), "APPROVED", currentUser.getUserId());
+                NotificationPublisher.getInstance().publish(claim.getClaimantId(),
+                        "Your claim #" + claim.getClaimId() + " has been approved!");
                 handleClaimVerification();
             });
 
@@ -267,6 +270,8 @@ public class AdminDashboardController {
             rejectBtn.getStyleClass().add("danger-button");
             rejectBtn.setOnAction(e -> {
                 claimDao.updateStatus(claim.getClaimId(), "REJECTED", currentUser.getUserId());
+                NotificationPublisher.getInstance().publish(claim.getClaimantId(),
+                        "Your claim #" + claim.getClaimId() + " has been rejected.");
                 handleClaimVerification();
             });
 
@@ -277,6 +282,8 @@ public class AdminDashboardController {
             returnBtn.getStyleClass().add("secondary-button");
             returnBtn.setOnAction(e -> {
                 claimDao.updateStatus(claim.getClaimId(), "RETURNED", currentUser.getUserId());
+                NotificationPublisher.getInstance().publish(claim.getClaimantId(),
+                        "Your claimed item (Claim #" + claim.getClaimId() + ") has been marked as returned. Please collect it!");
                 handleClaimVerification();
             });
 
