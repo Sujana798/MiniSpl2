@@ -42,4 +42,21 @@ class AuthServiceTest {
 
         assertEquals("Invalid email or password.", exception.getMessage());
     }
+    @Test
+    void resetPassword_withNonExistentEmail_shouldThrowException() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            authService.resetPassword("doesnotexist_xyz@example.com", "SOME-CODE-HERE", "newPassword123");
+        });
+
+        assertTrue(exception.getMessage().contains("No account found"));
+    }
+
+    @Test
+    void resetPassword_withShortNewPassword_shouldThrowException() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            authService.resetPassword("admin@campus.edu", "SOME-CODE", "123");
+        });
+
+        assertTrue(exception.getMessage().contains("at least 6 characters"));
+    }
 }

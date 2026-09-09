@@ -68,4 +68,45 @@ class WeightedMatchingStrategyTest {
 
         assertEquals(100.0, result.getDateScore());
     }
+
+
+    @Test
+    void calculateScore_withBlankCategory_shouldScoreZeroOnCategory() {
+        ItemReport lost = buildReport("LOST", "", "Phone", "desc", "Library", "2026-01-01", null, null);
+        ItemReport found = buildReport("FOUND", "Electronics", "Phone", "desc", "Library", "2026-01-01", null, null);
+
+        MatchScoreResult result = strategy.calculateScore(lost, found);
+
+        assertEquals(0.0, result.getCategoryScore());
+    }
+
+    @Test
+    void calculateScore_withInvalidDateFormat_shouldScoreZeroOnDate() {
+        ItemReport lost = buildReport("LOST", "Electronics", "Phone", "desc", "Library", "not-a-date", null, null);
+        ItemReport found = buildReport("FOUND", "Electronics", "Phone", "desc", "Library", "2026-01-01", null, null);
+
+        MatchScoreResult result = strategy.calculateScore(lost, found);
+
+        assertEquals(0.0, result.getDateScore());
+    }
+
+    @Test
+    void calculateScore_withMatchingBrandAndColor_shouldScoreFullAttributeScore() {
+        ItemReport lost = buildReport("LOST", "Electronics", "Phone", "desc", "Library", "2026-01-01", "Samsung", "Black");
+        ItemReport found = buildReport("FOUND", "Electronics", "Phone", "desc", "Library", "2026-01-01", "Samsung", "Black");
+
+        MatchScoreResult result = strategy.calculateScore(lost, found);
+
+        assertEquals(100.0, result.getAttributeScore());
+    }
+
+    @Test
+    void calculateScore_withNoComparableAttributes_shouldReturnNeutralScore() {
+        ItemReport lost = buildReport("LOST", "Documents", "ID Card", "desc", "Library", "2026-01-01", null, null);
+        ItemReport found = buildReport("FOUND", "Documents", "ID Card", "desc", "Library", "2026-01-01", null, null);
+
+        MatchScoreResult result = strategy.calculateScore(lost, found);
+
+        assertEquals(50.0, result.getAttributeScore(), "No brand/color to compare should give neutral 50 score");
+    }
 }
