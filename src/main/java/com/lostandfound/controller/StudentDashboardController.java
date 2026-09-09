@@ -32,6 +32,9 @@ import com.lostandfound.model.ItemReport;
 import java.util.List;
 import com.lostandfound.dao.NotificationDao;
 import com.lostandfound.model.Notification;
+import com.lostandfound.notification.NotificationPublisher;
+import com.lostandfound.dao.UserDao;
+import com.lostandfound.model.User;
 
 public class StudentDashboardController {
 
@@ -375,6 +378,14 @@ public class StudentDashboardController {
         boolean success = claimDao.insertClaim(claim);
 
         if (success) {
+            List<User> allUsers = new UserDao().getAllUsers();
+            for (User user : allUsers) {
+                if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+                    NotificationPublisher.getInstance().publish(user.getUserId(),
+                            "New claim submitted by " + currentUser.getName() + " for review.");
+                }
+            }
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Your claim has been submitted for review.");
             alert.showAndWait();
             handleMyClaims();

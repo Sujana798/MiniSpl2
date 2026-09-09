@@ -27,9 +27,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.util.List;
+import com.lostandfound.dao.NotificationDao;
+import com.lostandfound.model.Notification;
 
 public class AdminDashboardController {
 
@@ -87,10 +88,55 @@ public class AdminDashboardController {
 
     @FXML
     private void handleNotifications() {
-        showPlaceholderPanel("Notifications",
-                "Admin notifications will be available once the notification module is implemented.");
+        contentArea.getChildren().clear();
+        contentArea.setSpacing(15);
+
+        Label heading = new Label("Notifications");
+        heading.getStyleClass().add("dashboard-heading");
+        contentArea.getChildren().add(heading);
+
+        NotificationDao notificationDao = new NotificationDao();
+        List<Notification> notifications = notificationDao.findByUserId(currentUser.getUserId());
+
+        if (notifications.isEmpty()) {
+            Label emptyLabel = new Label("No notifications yet.");
+            emptyLabel.setStyle("-fx-text-fill: #777;");
+            contentArea.getChildren().add(emptyLabel);
+            return;
+        }
+
+        for (Notification notification : notifications) {
+            contentArea.getChildren().add(buildAdminNotificationCard(notification, notificationDao));
+        }
     }
 
+    private VBox buildAdminNotificationCard(Notification notification, NotificationDao notificationDao) {
+        VBox card = new VBox(6);
+        String bgColor = notification.isRead() ? "white" : "#eaf2fb";
+        card.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 10; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
+
+        Label messageLabel = new Label(notification.getMessage());
+        messageLabel.setStyle("-fx-font-size: 13px; " + (notification.isRead() ? "" : "-fx-font-weight: bold;"));
+        messageLabel.setWrapText(true);
+
+        Label timeLabel = new Label(notification.getCreatedAt());
+        timeLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #999;");
+
+        card.getChildren().addAll(messageLabel, timeLabel);
+
+        if (!notification.isRead()) {
+            Button markReadBtn = new Button("Mark as Read");
+            markReadBtn.getStyleClass().add("secondary-button");
+            markReadBtn.setOnAction(e -> {
+                notificationDao.markAsRead(notification.getNotificationId());
+                handleNotifications();
+            });
+            card.getChildren().add(markReadBtn);
+        }
+
+        return card;
+    }
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
@@ -115,6 +161,7 @@ public class AdminDashboardController {
         long pendingClaims = new ClaimDao().findAll().stream()
                 .filter(c -> "PENDING".equals(c.getStatus()))
                 .count();
+        long unreadNotifs = new NotificationDao().countUnread(currentUser.getUserId());
 
         HBox statRow = new HBox(20,
                 createStatCard(String.valueOf(totalUsers), "Total Users"),

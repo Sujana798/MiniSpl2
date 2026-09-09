@@ -30,7 +30,9 @@
         </VBox>
     </left>
     <center>
-        <VBox fx:id="contentArea"/>
+        <ScrollPane fitToWidth="true" style="-fx-background: #f4f6f8; -fx-background-color: transparent;">
+            <VBox fx:id="contentArea"/>
+        </ScrollPane>
     </center>
 
 </BorderPane>
