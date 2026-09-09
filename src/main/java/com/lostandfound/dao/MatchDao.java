@@ -35,6 +35,27 @@ public class MatchDao {
         return Optional.empty();
     }
 
+    public Optional<Match> findById(int matchId) {
+        String sql = "SELECT * FROM matches WHERE match_id = ?";
+
+        Connection conn = DatabaseConnection.getConnection();
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, matchId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapResultSetToMatch(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Failed to find match by id: " + e.getMessage());
+        }
+
+        return Optional.empty();
+    }
+
     public void saveOrUpdateMatch(Match match) {
         Optional<Match> existing = findByPair(match.getLostReportId(), match.getFoundReportId());
 

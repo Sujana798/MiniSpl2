@@ -378,11 +378,16 @@ public class StudentDashboardController {
             claimStatusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: " + statusColor + ";");
             card.getChildren().add(claimStatusLabel);
 
-        } else {
+        } else if ("CONFIRMED".equalsIgnoreCase(match.getStatus())) {
             Button claimButton = new Button("This is Mine — Submit Claim");
             claimButton.setStyle("-fx-background-color: #145DA0; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand;");
             claimButton.setOnAction(e -> submitClaim(match, claimDao));
             card.getChildren().add(claimButton);
+
+        } else {
+            Label pendingLabel = new Label("Awaiting admin confirmation before a claim can be filed.");
+            pendingLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #b8860b; -fx-font-style: italic;");
+            card.getChildren().add(pendingLabel);
         }
 
         return card;

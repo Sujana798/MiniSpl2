@@ -25,6 +25,7 @@
             <Button text="📦 Manage Reports" onAction="#handleManageReports" maxWidth="Infinity" styleClass="sidebar-button"/>
             <Button text="🔗 Match Review" onAction="#handleMatchReview" maxWidth="Infinity" styleClass="sidebar-button"/>
             <Button text="📝 Claim Verification" onAction="#handleClaimVerification" maxWidth="Infinity" styleClass="sidebar-button"/>
+            <Button text="🔁 Returns / Closure" onAction="#handleReturnsClosure" maxWidth="Infinity" styleClass="sidebar-button"/>
             <Button text="👥 User Management" onAction="#handleUserManagement" maxWidth="Infinity" styleClass="sidebar-button"/>
             <Button text="📈 Reports &amp; Analytics" onAction="#handleAnalytics" maxWidth="Infinity" styleClass="sidebar-button"/>
             <Button text="🔔 Notifications" onAction="#handleNotifications" maxWidth="Infinity" styleClass="sidebar-button"/>

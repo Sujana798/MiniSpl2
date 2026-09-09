@@ -1,8 +1,13 @@
 package com.lostandfound;
 
+import com.lostandfound.dao.ItemReportDao;
+import com.lostandfound.dao.MatchDao;
+import com.lostandfound.dao.UserDao;
 import com.lostandfound.db.DatabaseConnection;
 import com.lostandfound.db.DatabaseInitializer;
 import com.lostandfound.db.DatabaseSeeder;
+import com.lostandfound.service.MatchService;
+import com.lostandfound.service.WeightedMatchingStrategy;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
