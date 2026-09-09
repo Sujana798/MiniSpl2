@@ -55,11 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Controller for the Admin Dashboard. All panels are built in code and
- * swapped into contentArea - the same pattern already used for User
- * Management and Claim Verification, kept consistent across modules.
- */
 public class AdminDashboardController {
 
     @FXML
@@ -735,10 +730,6 @@ public class AdminDashboardController {
         return row;
     }
 
-    // ---------------------------------------------------------------
-    // Claim Verification (PENDING claims only - approve/reject)
-    // ---------------------------------------------------------------
-
     private void buildClaimVerification() {
         VBox panel = new VBox(15);
 
@@ -771,14 +762,11 @@ public class AdminDashboardController {
         contentArea.getChildren().setAll(panel);
     }
 
-    // ---------------------------------------------------------------
-    // Returns / Closure (APPROVED claims awaiting return + RETURNED history)
-    // ---------------------------------------------------------------
 
     private void buildReturnsClosure() {
         VBox panel = new VBox(15);
 
-        Label heading = new Label("Returns / Closure");
+        Label heading = new Label("Returns / Closure History");
         heading.getStyleClass().add("dashboard-heading");
 
         Label note = new Label(
@@ -786,9 +774,10 @@ public class AdminDashboardController {
                         "below as closure history.");
         note.getStyleClass().add("section-note");
         note.setWrapText(true);
-
         List<Claim> relevantClaims = claimDao.findAll().stream()
-                .filter(c -> "APPROVED".equalsIgnoreCase(c.getStatus()) || "RETURNED".equalsIgnoreCase(c.getStatus()))
+                .filter(c -> "APPROVED".equalsIgnoreCase(c.getStatus())
+                        || "RETURNED".equalsIgnoreCase(c.getStatus())
+                        || "REJECTED".equalsIgnoreCase(c.getStatus()))
                 .collect(Collectors.toList());
 
         VBox listBox = new VBox(12);
@@ -1074,10 +1063,6 @@ public class AdminDashboardController {
 
         contentArea.getChildren().setAll(panel);
     }
-
-    // ---------------------------------------------------------------
-    // Shared helpers
-    // ---------------------------------------------------------------
 
     private VBox createStatCard(String number, String label) {
         VBox card = new VBox();

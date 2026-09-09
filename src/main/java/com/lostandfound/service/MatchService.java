@@ -74,13 +74,6 @@ public class MatchService {
         matchDao.updateStatus(matchId, "REJECTED");
     }
 
-    /**
-     * Admin confirms a PENDING match, allowing the reporters to proceed to
-     * the Claim step. Re-validates the match at confirm-time (not just at
-     * generation-time) so a match cannot be confirmed if it was already
-     * actioned, or if one of its reports is no longer in a matchable state
-     * (e.g. already claimed/returned through a different match).
-     */
     public boolean confirmMatch(int matchId) {
         Match match = matchDao.findById(matchId).orElse(null);
         if (match == null || !"PENDING".equalsIgnoreCase(match.getStatus())) {
