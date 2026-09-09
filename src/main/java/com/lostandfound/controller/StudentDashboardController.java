@@ -100,9 +100,28 @@ public class StudentDashboardController {
         recentActivity.setStyle("-fx-padding: 10 0 0 0;");
         Label recentTitle = new Label("Recent Activity");
         recentTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
-        Label recentEmpty = new Label("No recent activity yet.");
-        recentEmpty.setStyle("-fx-text-fill: #999; -fx-font-size: 12px;");
-        recentActivity.getChildren().addAll(recentTitle, recentEmpty);
+        recentActivity.getChildren().add(recentTitle);
+
+        List<Notification> recentNotifications = notificationDao.findByUserId(currentUser.getUserId());
+
+        if (recentNotifications.isEmpty()) {
+            Label recentEmpty = new Label("No recent activity yet.");
+            recentEmpty.setStyle("-fx-text-fill: #999; -fx-font-size: 12px;");
+            recentActivity.getChildren().add(recentEmpty);
+        } else {
+            int limit = Math.min(3, recentNotifications.size());
+            for (int i = 0; i < limit; i++) {
+                Notification n = recentNotifications.get(i);
+                HBox activityRow = new HBox(8);
+                Label dot = new Label("•");
+                dot.setStyle("-fx-text-fill: #145DA0; -fx-font-weight: bold;");
+                Label msg = new Label(n.getMessage());
+                msg.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
+                msg.setWrapText(true);
+                activityRow.getChildren().addAll(dot, msg);
+                recentActivity.getChildren().add(activityRow);
+            }
+        }
 
         contentArea.getChildren().addAll(heading, statRow, ctaCard, recentActivity);
     }

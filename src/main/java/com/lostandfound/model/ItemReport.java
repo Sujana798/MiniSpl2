@@ -1,5 +1,10 @@
 package com.lostandfound.model;
 
+import com.lostandfound.db.DatabaseConnection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class ItemReport {
     private int reportId;
     private int reporterId;
@@ -69,4 +74,5 @@ public class ItemReport {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
 }

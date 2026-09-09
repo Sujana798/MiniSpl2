@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.util.List;
 import com.lostandfound.dao.NotificationDao;
 import com.lostandfound.model.Notification;
+import com.lostandfound.state.ReportState;
+import com.lostandfound.state.ReportStateFactory;
 
 public class AdminDashboardController {
 
@@ -329,11 +331,16 @@ public class AdminDashboardController {
             returnBtn.getStyleClass().add("secondary-button");
             returnBtn.setOnAction(e -> {
                 claimDao.updateStatus(claim.getClaimId(), "RETURNED", currentUser.getUserId());
+
+                if (match != null) {
+                    updateReportToReturned(match.getLostReportId());
+                    updateReportToReturned(match.getFoundReportId());
+                }
+
                 NotificationPublisher.getInstance().publish(claim.getClaimantId(),
                         "Your claimed item (Claim #" + claim.getClaimId() + ") has been marked as returned. Please collect it!");
                 handleClaimVerification();
             });
-
             actions.getChildren().add(returnBtn);
         }
 
@@ -342,6 +349,20 @@ public class AdminDashboardController {
         }
 
         return card;
+    }
+
+    private void updateReportToReturned(int reportId) {
+        ItemReportDao itemReportDao = new ItemReportDao();
+        ItemReport report = itemReportDao.findById(reportId);
+        if (report == null) return;
+
+        try {
+            ReportState currentState = ReportStateFactory.fromString(report.getStatus());
+            ReportState newState = currentState.markReturned();
+            itemReportDao.updateStatus(reportId, newState.getName());
+        } catch (IllegalStateException e) {
+
+        }
     }
 
     private void showPlaceholderPanel(String title, String message) {

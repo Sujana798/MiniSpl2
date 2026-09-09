@@ -146,4 +146,20 @@ public class ItemReportDao {
         report.setCreatedAt(rs.getString("created_at"));
         return report;
     }
+
+    public boolean updateStatus(int reportId, String status) {
+        String sql = "UPDATE item_reports SET status = ? WHERE report_id = ?";
+
+        Connection conn = DatabaseConnection.getConnection();
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, reportId);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Failed to update report status: " + e.getMessage());
+            return false;
+        }
+    }
 }

@@ -7,6 +7,8 @@ import com.lostandfound.model.ItemReport;
 import com.lostandfound.model.Match;
 import com.lostandfound.model.MatchView;
 import com.lostandfound.model.User;
+import com.lostandfound.state.ReportState;
+import com.lostandfound.state.ReportStateFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,6 +124,18 @@ public class MatchService {
         match.setStatus("PENDING");
 
         matchDao.saveOrUpdateMatch(match);
+
+        updateReportStateIfPossible(lost, "MATCHED");
+        updateReportStateIfPossible(found, "MATCHED");
+    }
+
+    private void updateReportStateIfPossible(ItemReport report, String targetStatus) {
+        try {
+            ReportState currentState = ReportStateFactory.fromString(report.getStatus());
+            ReportState newState = "MATCHED".equals(targetStatus) ? currentState.markMatched() : currentState;
+            itemReportDao.updateStatus(report.getReportId(), newState.getName());
+        } catch (IllegalStateException e) {
+        }
     }
 
     private MatchView buildMatchView(Match m, ItemReport lost, ItemReport found) {
