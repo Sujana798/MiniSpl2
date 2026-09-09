@@ -22,4 +22,34 @@ public class DatabaseConnection {
         }
         return connection;
     }
+
+    /**
+     * Runs several related DAO calls as a single atomic unit of work on the
+     * shared connection, so a multi-table workflow step (e.g. confirming a
+     * match and updating both linked reports) either fully succeeds or is
+     * fully rolled back - never partially applied.
+     */
+    public static void runInTransaction(Runnable work) {
+        Connection conn = getConnection();
+        try {
+            conn.setAutoCommit(false);
+            work.run();
+            conn.commit();
+        } catch (RuntimeException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                System.out.println("Rollback failed: " + rollbackEx.getMessage());
+            }
+            throw e;
+        } catch (SQLException e) {
+            throw new RuntimeException("Transaction failed: " + e.getMessage(), e);
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                System.out.println("Failed to restore autocommit: " + e.getMessage());
+            }
+        }
+    }
 }
