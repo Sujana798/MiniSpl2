@@ -70,8 +70,9 @@ public class MatchService {
         }
     }
 
-    public void rejectMatch(int matchId) {
+    public boolean rejectMatch(int matchId) {
         matchDao.updateStatus(matchId, "REJECTED");
+        return false;
     }
 
     /**

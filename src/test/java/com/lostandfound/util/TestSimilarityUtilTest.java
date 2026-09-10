@@ -6,7 +6,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TextSimilarityUtilTest {
+class TestSimilarityUtilTest {
 
     @Test
     void tokenize_shouldRemoveStopwordsAndShortWords() {
