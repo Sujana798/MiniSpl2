@@ -266,12 +266,8 @@ public class AdminDashboardController {
 
         HBox statRow =
                 new HBox(
-                        20,
-                        createStatCard(
-                                String.valueOf(totalUsers),
-                                "Total Users"
-                        ),
-                        createStatCard(
+                        20, createStatCard(String.valueOf(totalUsers),
+                                "Total Users"), createStatCard(
                                 String.valueOf(totalStudents),
                                 "Students"
                         ),
@@ -1310,79 +1306,59 @@ public class AdminDashboardController {
                             .collect(
                                     Collectors.toList()
                             );
-
             table.setItems(
                     FXCollections.observableArrayList(
                             filtered
                     )
             );
         };
-
         searchField.textProperty()
                 .addListener(
                         (obs, oldVal, newVal) ->
                                 applyFilter.run()
                 );
-
         confidenceFilter.setOnAction(
                 e -> applyFilter.run()
         );
-
         statusFilter.setOnAction(
                 e -> applyFilter.run()
         );
-
         recalcButton.setOnAction(e -> {
-
             matchService.recalculateAllMatches();
-
             showAlert(
                     Alert.AlertType.INFORMATION,
                     "Matches Refreshed",
                     "All lost/found reports have been re-evaluated."
             );
-
             buildMatchReview();
         });
-
         panel.getChildren().addAll(
                 heading,
                 note,
                 filterRow
         );
-
         if (allMatches.isEmpty()) {
 
             Label emptyLabel =
                     new Label(
                             "No matches yet. Click Recalculate Matches to scan existing reports."
                     );
-
             emptyLabel.setWrapText(true);
-
             emptyLabel.setStyle(
                     "-fx-text-fill: #777;" +
                             "-fx-font-size: 12px;"
             );
-
             panel.getChildren()
                     .add(emptyLabel);
-
         } else {
-
             panel.getChildren()
                     .add(table);
         }
-
         contentArea
                 .getChildren()
                 .setAll(panel);
     }
-
-    // ===============================================================
     // MATCH DETAILS
-    // ===============================================================
-
     private void showMatchDetailsDialog(
             MatchView mv) {
 
@@ -1391,24 +1367,18 @@ public class AdminDashboardController {
         dialog.initModality(
                 Modality.APPLICATION_MODAL
         );
-
         dialog.setTitle(
                 "Match Details"
         );
-
         VBox root = new VBox(15);
-
         root.setStyle(
                 "-fx-padding: 25;" +
                         "-fx-background-color: white;"
         );
-
         Label heading =
                 new Label("Match Details");
-
         heading.getStyleClass()
                 .add("dashboard-heading");
-
         HBox itemsRow =
                 new HBox(
                         20,
@@ -1671,67 +1641,21 @@ public class AdminDashboardController {
                     "-fx-font-size: 12px;"
             );
         }
-
-        box.getChildren().addAll(
-                headingLabel,
-                titleLabel,
-                categoryLabel,
-                locationLabel,
-                dateLabel,
-                brandLabel,
-                colorLabel,
-                reporterLabel,
-                descLabel
-        );
-
+        box.getChildren().addAll(headingLabel, titleLabel, categoryLabel, locationLabel, dateLabel, brandLabel, colorLabel, reporterLabel, descLabel);
         return box;
     }
 
-    private HBox buildCriterionRow(
-            String label,
-            double score) {
-
+    private HBox buildCriterionRow(String label, double score) {
         HBox row = new HBox(10);
-
-        row.setAlignment(
-                Pos.CENTER_LEFT
-        );
-
-        Label nameLabel =
-                new Label(label);
-
+        row.setAlignment(Pos.CENTER_LEFT);
+        Label nameLabel = new Label(label);
         nameLabel.setPrefWidth(220);
-
-        nameLabel.setStyle(
-                "-fx-font-size: 12px;"
-        );
-
-        ProgressBar bar =
-                new ProgressBar(
-                        score / 100.0
-                );
-
+        nameLabel.setStyle("-fx-font-size: 12px;");
+        ProgressBar bar = new ProgressBar(score / 100.0);
         bar.setPrefWidth(200);
-
-        Label valueLabel =
-                new Label(
-                        String.format(
-                                "%.0f%%",
-                                score
-                        )
-                );
-
-        valueLabel.setStyle(
-                "-fx-font-size: 12px;" +
-                        "-fx-font-weight: bold;"
-        );
-
-        row.getChildren().addAll(
-                nameLabel,
-                bar,
-                valueLabel
-        );
-
+        Label valueLabel = new Label(String.format("%.0f%%", score));
+        valueLabel.setStyle("-fx-font-size: 12px;" + "-fx-font-weight: bold;");
+        row.getChildren().addAll(nameLabel, bar, valueLabel);
         return row;
     }
 
@@ -1740,33 +1664,14 @@ public class AdminDashboardController {
     // ===============================================================
 
     private void buildClaimVerification() {
-
         VBox panel = new VBox(15);
-
-        Label heading =
-                new Label("Claim Verification");
-
-        heading.getStyleClass()
-                .add("dashboard-heading");
-
-        Label note =
-                new Label(
-                        "Pending claims awaiting admin verification. " +
-                                "Approve valid claims or reject claims that fail verification."
-                );
-
-        note.getStyleClass()
-                .add("section-note");
-
+        Label heading = new Label("Claim Verification");
+        heading.getStyleClass().add("dashboard-heading");
+        Label note = new Label("Pending claims awaiting admin verification. " + "Approve valid claims or reject claims that fail verification.");
+        note.getStyleClass().add("section-note");
         note.setWrapText(true);
-
-        List<Claim> pendingClaims =
-                claimDao.findAll()
-                        .stream()
-                        .filter(c ->
-                                "PENDING"
-                                        .equalsIgnoreCase(
-                                                c.getStatus()
+        List<Claim> pendingClaims = claimDao.findAll().stream().filter(c -> "PENDING"
+                                        .equalsIgnoreCase(c.getStatus()
                                         )
                         )
                         .collect(
@@ -1805,8 +1710,7 @@ public class AdminDashboardController {
 
         panel.getChildren().addAll(
                 heading,
-                note,
-                listBox
+                note, listBox
         );
 
         contentArea
@@ -1916,47 +1820,30 @@ public class AdminDashboardController {
                 detailsLabel,
                 statusLabel
         );
-
         HBox actions =
                 new HBox(8);
-
         // -----------------------------------------------------------
         // APPROVE
         // -----------------------------------------------------------
-
         Button approveBtn =
                 new Button("Approve");
-
-        approveBtn.getStyleClass()
-                .add("success-button");
-
+        approveBtn.getStyleClass().add("success-button");
         approveBtn.setOnAction(e -> {
-
-            Match approvalMatch =
-                    matchDao.findById(claim.getMatchId())
-                            .orElse(null);
-
+            Match approvalMatch = matchDao.findById(claim.getMatchId()).orElse(null);
             if (approvalMatch == null
                     || !"CONFIRMED".equalsIgnoreCase(approvalMatch.getStatus())) {
-
-                showAlert(
-                        Alert.AlertType.WARNING,
+                showAlert(Alert.AlertType.WARNING,
                         "Cannot Approve",
-                        "This claim's match is not confirmed, so it cannot be approved."
-                );
-
+                        "This claim's match is not confirmed, so it cannot be approved.");
                 handleClaimVerification();
                 return;
             }
-
             boolean[] approvedOk = {false};
-
             DatabaseConnection.runInTransaction(() -> {
                 boolean updated = claimDao.updateStatus(
                         claim.getClaimId(),
                         "APPROVED",
-                        currentUser.getUserId()
-                );
+                        currentUser.getUserId());
                 if (!updated) {
                     throw new IllegalStateException(
                             "Failed to approve claim " + claim.getClaimId()
@@ -1968,83 +1855,31 @@ public class AdminDashboardController {
                 markReportClaimed(approvalMatch.getFoundReportId());
                 approvedOk[0] = true;
             });
-
             if (approvedOk[0]) {
-
-                NotificationPublisher
-                        .getInstance()
-                        .publish(
-                                claim.getClaimantId(),
-                                "Your claim #"
-                                        + claim.getClaimId()
-                                        + " has been approved!"
-                        );
-
-                showAlert(
-                        Alert.AlertType.INFORMATION,
-                        "Claim Approved",
-                        "Claim #" + claim.getClaimId()
-                                + " has been approved."
-                );
-
+                NotificationPublisher.getInstance().publish(claim.getClaimantId(), "Your claim #" + claim.getClaimId() + " has been approved!");
+                showAlert(Alert.AlertType.INFORMATION, "Claim Approved", "Claim #" + claim.getClaimId() + " has been approved.");
             } else {
-
                 showAlert(
                         Alert.AlertType.ERROR,
                         "Approval Failed",
-                        "Could not approve claim #" + claim.getClaimId() + "."
-                );
+                        "Could not approve claim #" + claim.getClaimId() + ".");
             }
-
             handleClaimVerification();
         });
-
         // -----------------------------------------------------------
         // REJECT
         // -----------------------------------------------------------
-
-        Button rejectBtn =
-                new Button("Reject");
-
-        rejectBtn.getStyleClass()
-                .add("danger-button");
-
+        Button rejectBtn = new Button("Reject");
+        rejectBtn.getStyleClass().add("danger-button");
         rejectBtn.setOnAction(e -> {
-
-            claimDao.updateStatus(
-                    claim.getClaimId(),
-                    "REJECTED",
-                    currentUser.getUserId()
-            );
-
-            NotificationPublisher
-                    .getInstance()
-                    .publish(
-                            claim.getClaimantId(),
-                            "Your claim #"
-                                    + claim.getClaimId()
-                                    + " has been rejected."
-                    );
-
-            showAlert(
-                    Alert.AlertType.INFORMATION,
+            claimDao.updateStatus(claim.getClaimId(), "REJECTED", currentUser.getUserId());
+            NotificationPublisher.getInstance().publish(claim.getClaimantId(), "Your claim #" + claim.getClaimId() + " has been rejected.");
+            showAlert(Alert.AlertType.INFORMATION,
                     "Claim Rejected",
                     "Claim #" + claim.getClaimId()
-                            + " has been rejected."
-            );
-
-            handleClaimVerification();
-        });
-
-        actions.getChildren().addAll(
-                approveBtn,
-                rejectBtn
-        );
-
-        card.getChildren()
-                .add(actions);
-
-        return card;
+                            + " has been rejected.");handleClaimVerification();});
+        actions.getChildren().addAll(approveBtn, rejectBtn);
+        card.getChildren().add(actions);return card;
     }
 
     // ===============================================================
@@ -2052,196 +1887,60 @@ public class AdminDashboardController {
     // ===============================================================
 
     private void buildReturnsClosure() {
+        VBox panel = new VBox(15);
+        Label heading = new Label("Returns / Closure");
+        heading.getStyleClass().add("dashboard-heading");
 
-        VBox panel =
-                new VBox(15);
-
-        Label heading =
-                new Label("Returns / Closure");
-
-        heading.getStyleClass()
-                .add("dashboard-heading");
-
-        Label note =
-                new Label(
-                        "Confirm physical return for approved claims. " +
-                                "Returned claims remain visible as closure history."
-                );
-
-        note.getStyleClass()
-                .add("section-note");
-
+        Label note = new Label("Confirm physical return for approved claims. " + "Returned claims remain visible as closure history.");
+        note.getStyleClass().add("section-note");
         note.setWrapText(true);
-
         List<Claim> relevantClaims =
-                claimDao.findAll()
-                        .stream()
-                        .filter(c ->
-                                "APPROVED"
-                                        .equalsIgnoreCase(
-                                                c.getStatus()
-                                        )
-                                        ||
-                                        "RETURNED"
-                                                .equalsIgnoreCase(
-                                                        c.getStatus()
-                                                )
-                        )
-                        .collect(
-                                Collectors.toList()
-                        );
+                claimDao.findAll().stream().filter(c -> "APPROVED".equalsIgnoreCase(c.getStatus()) || "RETURNED".equalsIgnoreCase(c.getStatus()
+                                                )).collect(Collectors.toList());
 
-        VBox listBox =
-                new VBox(12);
-
-        if (relevantClaims.isEmpty()) {
-
-            Label emptyLabel =
-                    new Label(
-                            "No approved or returned claims yet."
-                    );
-
-            emptyLabel.setStyle(
-                    "-fx-text-fill: #777;"
-            );
-
-            listBox.getChildren()
-                    .add(emptyLabel);
-
+        VBox listBox = new VBox(12);
+        if (relevantClaims.isEmpty()) {Label emptyLabel =
+                new Label("No approved or returned claims yet.");
+            emptyLabel.setStyle("-fx-text-fill: #777;");
+            listBox.getChildren().add(emptyLabel);
         } else {
-
-            for (Claim claim :
-                    relevantClaims) {
-
-                listBox.getChildren()
-                        .add(
-                                buildReturnClaimCard(
-                                        claim
-                                )
-                        );
+            for (Claim claim : relevantClaims) {
+                listBox.getChildren().add(buildReturnClaimCard(claim));
             }
         }
-
-        panel.getChildren().addAll(
-                heading,
-                note,
-                listBox
-        );
-
-        contentArea
-                .getChildren()
-                .setAll(panel);
+        panel.getChildren().addAll(heading, note, listBox);
+        contentArea.getChildren().setAll(panel);
     }
-
-    // ===============================================================
     // RETURN CLAIM CARD
-    // ===============================================================
+    private VBox buildReturnClaimCard(Claim claim) {
+        VBox card = new VBox(8);
+        card.setStyle("-fx-background-color: white;" + "-fx-background-radius: 10;" + "-fx-padding: 15;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
+        Match match = matchDao
+                .findById(claim.getMatchId()).orElse(null);
 
-    private VBox buildReturnClaimCard(
-            Claim claim) {
-
-        VBox card =
-                new VBox(8);
-
-        card.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-padding: 15;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-        );
-
-        Match match =
-                matchDao
-                        .findById(
-                                claim.getMatchId()
-                        )
-                        .orElse(null);
-
-        String itemInfo =
-                "Unknown item";
-
+        String itemInfo = "Unknown item";
         if (match != null) {
-
-            ItemReport lost =
-                    itemReportDao.findById(
-                            match.getLostReportId()
-                    );
-
-            ItemReport found =
-                    itemReportDao.findById(
-                            match.getFoundReportId()
-                    );
-
-            itemInfo =
-                    "Lost: "
-                            + (lost != null
-                            ? lost.getTitle()
-                            : "N/A")
-                            +
-                            " | Found: "
-                            +
-                            (found != null
-                                    ? found.getTitle()
-                                    : "N/A");
+            ItemReport lost = itemReportDao.findById(match.getLostReportId());ItemReport found = itemReportDao.findById(match.getFoundReportId());
+            itemInfo = "Lost: " + (lost != null ? lost.getTitle() : "N/A") + " | Found: " + (found != null ? found.getTitle() : "N/A");
         }
+        Label claimLabel = new Label("Claim #" + claim.getClaimId()+ " by " + resolveUserName(claim.getClaimantId()));
+        claimLabel.setStyle("-fx-font-size: 14px;" + "-fx-font-weight: bold;");
 
-        Label claimLabel =
-                new Label(
-                        "Claim #"
-                                + claim.getClaimId()
-                                + " by "
-                                + resolveUserName(
-                                claim.getClaimantId()
-                        )
-                );
-
-        claimLabel.setStyle(
-                "-fx-font-size: 14px;" +
-                        "-fx-font-weight: bold;"
-        );
-
-        Label itemLabel =
-                new Label(itemInfo);
-
+        Label itemLabel = new Label(itemInfo);
         itemLabel.setWrapText(true);
+        itemLabel.setStyle("-fx-font-size: 12px;" + "-fx-text-fill: #555;");
 
-        itemLabel.setStyle(
-                "-fx-font-size: 12px;" +
-                        "-fx-text-fill: #555;"
-        );
+        Label statusLabel = new Label("Status: " + claim.getStatus());
+        statusLabel.setStyle("-fx-font-size: 12px;" + "-fx-font-weight: bold;");
 
-        Label statusLabel =
-                new Label(
-                        "Status: "
-                                + claim.getStatus()
-                );
+        card.getChildren().addAll(claimLabel, itemLabel, statusLabel);
 
-        statusLabel.setStyle(
-                "-fx-font-size: 12px;" +
-                        "-fx-font-weight: bold;"
-        );
-
-        card.getChildren().addAll(
-                claimLabel,
-                itemLabel,
-                statusLabel
-        );
-
-        if ("APPROVED".equalsIgnoreCase(
-                claim.getStatus())) {
-
-            Button returnBtn =
-                    new Button(
-                            "Confirm Return"
-                    );
-
-            returnBtn.getStyleClass()
-                    .add("secondary-button");
-
+        if ("APPROVED".equalsIgnoreCase(claim.getStatus())) {
+            Button returnBtn = new Button("Confirm Return");
+            returnBtn.getStyleClass().add("secondary-button");
             returnBtn.setOnAction(e -> {
-
                 boolean[] returnedOk = {false};
-
                 DatabaseConnection.runInTransaction(() -> {
                     boolean updated = claimDao.updateStatus(
                             claim.getClaimId(),
@@ -2296,11 +1995,8 @@ public class AdminDashboardController {
 
                 buildReturnsClosure();
             });
-
-            card.getChildren()
-                    .add(returnBtn);
+            card.getChildren().add(returnBtn);
         }
-
         return card;
     }
 
@@ -2334,51 +2030,23 @@ public class AdminDashboardController {
             ReportState newState =
                     currentState.markClaimed();
 
-            itemReportDao.updateStatus(
-                    reportId,
-                    newState.getName()
-            );
-
+            itemReportDao.updateStatus(reportId, newState.getName());
         } catch (IllegalStateException e) {
-
-            throw new IllegalStateException(
-                    "Report " + reportId + " is not in a claimable state ("
-                            + report.getStatus() + ")", e
-            );
+            throw new IllegalStateException("Report " + reportId + " is not in a claimable state (" + report.getStatus() + ")", e);
         }
     }
-
     // ===============================================================
     // UPDATE REPORT TO RETURNED
     // ===============================================================
-
-    private void updateReportToReturned(
-            int reportId) {
-
-        ItemReport report =
-                itemReportDao.findById(
-                        reportId
-                );
-
+    private void updateReportToReturned(int reportId) {
+        ItemReport report = itemReportDao.findById(reportId);
         if (report == null) {
             return;
         }
-
-        try {
-
-            ReportState currentState =
-                    ReportStateFactory.fromString(
-                            report.getStatus()
-                    );
-
-            ReportState newState =
-                    currentState.markReturned();
-
-            itemReportDao.updateStatus(
-                    reportId,
-                    newState.getName()
-            );
-
+        try {ReportState currentState = ReportStateFactory.fromString(report.getStatus());
+            ReportState newState = currentState.markReturned();
+            itemReportDao.updateStatus(reportId,
+                    newState.getName());
         } catch (IllegalStateException e) {
 
             // Previously swallowed silently, which let a claim become
@@ -2423,71 +2091,22 @@ public class AdminDashboardController {
                         userDao.getAllUsers()
                 )
         );
-
-        TableColumn<User, Integer> idCol =
-                new TableColumn<>("ID");
-
-        idCol.setCellValueFactory(
-                new PropertyValueFactory<>(
-                        "userId"
-                )
-        );
-
-        TableColumn<User, String> nameCol =
-                new TableColumn<>("Name");
-
-        nameCol.setCellValueFactory(
-                new PropertyValueFactory<>(
-                        "name"
-                )
-        );
-
-        TableColumn<User, String> emailCol =
-                new TableColumn<>("Email");
-
-        emailCol.setCellValueFactory(
-                new PropertyValueFactory<>(
-                        "email"
-                )
-        );
-
+        TableColumn<User, Integer> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("userId"));
+        TableColumn<User, String> nameCol = new TableColumn<>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        TableColumn<User, String> emailCol = new TableColumn<>("Email");
+        emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
         TableColumn<User, String> studentIdCol =
                 new TableColumn<>("Student ID");
+        studentIdCol.setCellValueFactory(new PropertyValueFactory<>("studentId"));
 
-        studentIdCol.setCellValueFactory(
-                new PropertyValueFactory<>(
-                        "studentId"
-                )
-        );
-
-        TableColumn<User, String> roleCol =
-                new TableColumn<>("Role");
-
-        roleCol.setCellValueFactory(
-                new PropertyValueFactory<>(
-                        "role"
-                )
-        );
-
-        table.getColumns().addAll(
-                idCol,
-                nameCol,
-                emailCol,
-                studentIdCol,
-                roleCol
-        );
-
+        TableColumn<User, String> roleCol = new TableColumn<>("Role");
+        roleCol.setCellValueFactory(new PropertyValueFactory<>("role"));
+        table.getColumns().addAll(idCol, nameCol, emailCol, studentIdCol, roleCol);
         table.setPrefHeight(320);
-
-        panel.getChildren().addAll(
-                heading,
-                note,
-                table
-        );
-
-        contentArea
-                .getChildren()
-                .setAll(panel);
+        panel.getChildren().addAll(heading, note, table);
+        contentArea.getChildren().setAll(panel);
     }
 
     // ===============================================================
@@ -2495,54 +2114,19 @@ public class AdminDashboardController {
     // ===============================================================
 
     private void buildReportsAnalytics() {
-
-        VBox panel =
-                new VBox(20);
-
-        Label heading =
-                new Label(
-                        "Reports & Analytics"
-                );
-
-        heading.getStyleClass()
-                .add("dashboard-heading");
-
-        List<ItemReport> allReports =
-                itemReportDao.findAll();
-
-        List<Match> allMatches =
-                matchDao.findAll();
-
-        List<Claim> allClaims =
-                claimDao.findAll();
-
-        int total =
-                allReports.size();
-
-        long lostCount =
-                allReports.stream()
-                        .filter(r ->
-                                "LOST".equalsIgnoreCase(
-                                        r.getType()
+        VBox panel = new VBox(20);
+        Label heading = new Label("Reports & Analytics");
+        heading.getStyleClass().add("dashboard-heading");
+        List<ItemReport> allReports = itemReportDao.findAll();
+        List<Match> allMatches = matchDao.findAll();
+        List<Claim> allClaims = claimDao.findAll();
+        int total = allReports.size();
+        long lostCount = allReports.stream().filter(r -> "LOST".equalsIgnoreCase(r.getType())).count();
+        long foundCount = allReports.stream().filter(r -> "FOUND".equalsIgnoreCase(r.getType())).count();
+        long openCount = allReports.stream().filter(r ->
+                                "REPORTED".equalsIgnoreCase(r.getStatus()
                                 ))
                         .count();
-
-        long foundCount =
-                allReports.stream()
-                        .filter(r ->
-                                "FOUND".equalsIgnoreCase(
-                                        r.getType()
-                                ))
-                        .count();
-
-        long openCount =
-                allReports.stream()
-                        .filter(r ->
-                                "REPORTED".equalsIgnoreCase(
-                                        r.getStatus()
-                                ))
-                        .count();
-
         long matchedCount =
                 allReports.stream()
                         .filter(r ->
@@ -2550,7 +2134,6 @@ public class AdminDashboardController {
                                         r.getStatus()
                                 ))
                         .count();
-
         long claimedCount =
                 allReports.stream()
                         .filter(r ->
@@ -2558,7 +2141,6 @@ public class AdminDashboardController {
                                         r.getStatus()
                                 ))
                         .count();
-
         long closedCount =
                 allReports.stream()
                         .filter(r ->
@@ -2566,12 +2148,10 @@ public class AdminDashboardController {
                                         r.getStatus()
                                 ))
                         .count();
-
         double resolutionRate =
                 total == 0
                         ? 0.0
                         : closedCount * 100.0 / total;
-
         HBox statsRow1 =
                 new HBox(
                         15,
@@ -2592,7 +2172,6 @@ public class AdminDashboardController {
                                 "Open / Pending"
                         )
                 );
-
         HBox statsRow2 =
                 new HBox(
                         15,
@@ -2616,11 +2195,7 @@ public class AdminDashboardController {
                                 "Resolution Rate"
                         )
                 );
-
-        // -----------------------------------------------------------
         // STATUS CHART
-        // -----------------------------------------------------------
-
         BarChart<String, Number> statusChart =
                 new BarChart<>(
                         new CategoryAxis(),
@@ -2630,30 +2205,14 @@ public class AdminDashboardController {
         statusChart.setTitle(
                 "Reports by Status"
         );
-
         statusChart.setLegendVisible(false);
-
         statusChart.setPrefHeight(260);
-
         XYChart.Series<String, Number> statusSeries =
                 new XYChart.Series<>();
-
         for (String status :
-                List.of(
-                        "REPORTED",
-                        "MATCHED",
-                        "CLAIMED",
-                        "RETURNED"
-                )) {
-
-            long count =
-                    allReports.stream()
-                            .filter(r ->
-                                    status.equalsIgnoreCase(
-                                            r.getStatus()
-                                    ))
+                List.of("REPORTED", "MATCHED", "CLAIMED", "RETURNED"
+                )) {long count = allReports.stream().filter(r -> status.equalsIgnoreCase(r.getStatus()))
                             .count();
-
             statusSeries.getData()
                     .add(
                             new XYChart.Data<>(
@@ -2662,58 +2221,36 @@ public class AdminDashboardController {
                             )
                     );
         }
-
         statusChart.getData()
                 .add(statusSeries);
 
-        // -----------------------------------------------------------
         // LOST VS FOUND
-        // -----------------------------------------------------------
-
         PieChart typeChart =
                 new PieChart();
-
         typeChart.setTitle(
                 "Lost vs Found"
         );
-
         typeChart.setPrefHeight(260);
-
         typeChart.getData().add(
                 new PieChart.Data(
                         "Lost (" + lostCount + ")",
                         lostCount
                 )
         );
-
         typeChart.getData().add(
                 new PieChart.Data(
                         "Found (" + foundCount + ")",
                         foundCount
                 )
         );
-
         HBox chartsRow1 =
                 new HBox(
                         20,
                         statusChart,
                         typeChart
                 );
-
-        HBox.setHgrow(
-                statusChart,
-                Priority.ALWAYS
-        );
-
-        HBox.setHgrow(
-                typeChart,
-                Priority.ALWAYS
-        );
-
-        // -----------------------------------------------------------
-        // CATEGORY
-        // -----------------------------------------------------------
-
+        HBox.setHgrow(statusChart, Priority.ALWAYS);
+        HBox.setHgrow(typeChart, Priority.ALWAYS);// CATEGORY
         Map<String, Long> categoryCounts =
                 allReports.stream()
                         .collect(
@@ -2725,360 +2262,99 @@ public class AdminDashboardController {
                                                                 .isBlank()
                                                         ? "Uncategorized"
                                                         : r.getCategory(),
-
-                                        LinkedHashMap::new,
-
-                                        Collectors.counting()
+                                        LinkedHashMap::new, Collectors.counting()
                                 )
                         );
-
-        BarChart<String, Number> categoryChart =
-                new BarChart<>(
-                        new CategoryAxis(),
-                        new NumberAxis()
-                );
-
-        categoryChart.setTitle(
-                "Reports by Category"
-        );
-
+        BarChart<String, Number> categoryChart = new BarChart<>(new CategoryAxis(), new NumberAxis());
+        categoryChart.setTitle("Reports by Category");
         categoryChart.setLegendVisible(false);
-
         categoryChart.setPrefHeight(260);
-
         XYChart.Series<String, Number> categorySeries =
                 new XYChart.Series<>();
-
-        categoryCounts.forEach(
-                (cat, count) ->
-                        categorySeries.getData()
-                                .add(
-                                        new XYChart.Data<>(
-                                                cat,
-                                                count
-                                        )
-                                )
-        );
-
-        categoryChart.getData()
-                .add(categorySeries);
-
-        // -----------------------------------------------------------
+        categoryCounts.forEach((cat, count) -> categorySeries.getData().add(new XYChart.Data<>(cat, count)));
+        categoryChart.getData().add(categorySeries);
         // LOCATIONS
-        // -----------------------------------------------------------
 
-        Map<String, Long> locationCounts =
-                allReports.stream()
-                        .collect(
-                                Collectors.groupingBy(
-                                        r ->
-                                                r.getLocation() == null
-                                                        ||
-                                                        r.getLocation()
-                                                                .isBlank()
-                                                        ? "Unspecified"
-                                                        : r.getLocation(),
-                                        Collectors.counting()
-                                )
+        Map<String, Long> locationCounts = allReports.stream().collect(Collectors.groupingBy(r -> r.getLocation() == null || r.getLocation().isBlank() ? "Unspecified" : r.getLocation(), Collectors.counting()));
+
+        List<Map.Entry<String, Long>> topLocations = locationCounts.entrySet().stream().sorted((a, b) -> Long.compare(b.getValue(), a.getValue())).limit(6).collect(Collectors.toList()
                         );
-
-        List<Map.Entry<String, Long>> topLocations =
-                locationCounts.entrySet()
-                        .stream()
-                        .sorted(
-                                (a, b) ->
-                                        Long.compare(
-                                                b.getValue(),
-                                                a.getValue()
-                                        )
-                        )
-                        .limit(6)
-                        .collect(
-                                Collectors.toList()
-                        );
-
-        BarChart<String, Number> locationChart =
-                new BarChart<>(
-                        new CategoryAxis(),
-                        new NumberAxis()
-                );
-
-        locationChart.setTitle(
-                "Top Locations"
-        );
-
+        BarChart<String, Number> locationChart = new BarChart<>(new CategoryAxis(), new NumberAxis());
+        locationChart.setTitle("Top Locations");
         locationChart.setLegendVisible(false);
-
         locationChart.setPrefHeight(260);
-
         XYChart.Series<String, Number> locationSeries =
                 new XYChart.Series<>();
-
-        for (Map.Entry<String, Long> entry :
-                topLocations) {
-
-            locationSeries.getData()
-                    .add(
-                            new XYChart.Data<>(
-                                    entry.getKey(),
-                                    entry.getValue()
-                            )
-                    );
+        for (Map.Entry<String, Long> entry : topLocations) {
+            locationSeries.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
         }
-
-        locationChart.getData()
-                .add(locationSeries);
-
-        HBox chartsRow2 =
-                new HBox(
-                        20,
-                        categoryChart,
-                        locationChart
-                );
-
-        HBox.setHgrow(
-                categoryChart,
-                Priority.ALWAYS
-        );
-
-        HBox.setHgrow(
-                locationChart,
-                Priority.ALWAYS
-        );
-
-        // -----------------------------------------------------------
+        locationChart.getData().add(locationSeries);
+        HBox chartsRow2 = new HBox(20, categoryChart, locationChart);
+        HBox.setHgrow(categoryChart, Priority.ALWAYS);
+        HBox.setHgrow(locationChart, Priority.ALWAYS);
         // MATCH & CLAIM SUMMARY
-        // -----------------------------------------------------------
-
-        long totalMatches =
-                allMatches.size();
-
-        long pendingMatches =
-                allMatches.stream()
-                        .filter(m ->
-                                "PENDING".equalsIgnoreCase(
-                                        m.getStatus()
-                                ))
-                        .count();
-
-        long confirmedMatches =
-                allMatches.stream()
-                        .filter(m ->
-                                "CONFIRMED".equalsIgnoreCase(
-                                        m.getStatus()
-                                ))
-                        .count();
-
-        long rejectedMatches =
-                allMatches.stream()
-                        .filter(m ->
-                                "REJECTED".equalsIgnoreCase(
-                                        m.getStatus()
-                                ))
-                        .count();
-
-        long totalClaims =
-                allClaims.size();
-
-        long pendingClaimsCount =
-                allClaims.stream()
-                        .filter(c ->
-                                "PENDING".equalsIgnoreCase(
-                                        c.getStatus()
-                                ))
-                        .count();
-
-        long approvedClaims =
-                allClaims.stream()
-                        .filter(c ->
-                                "APPROVED".equalsIgnoreCase(
-                                        c.getStatus()
-                                ))
-                        .count();
-
-        long returnedClaims =
-                allClaims.stream()
-                        .filter(c ->
-                                "RETURNED".equalsIgnoreCase(
-                                        c.getStatus()
-                                ))
-                        .count();
-
-        long rejectedClaims =
-                allClaims.stream()
-                        .filter(c ->
-                                "REJECTED".equalsIgnoreCase(
-                                        c.getStatus()
-                                ))
-                        .count();
-
-        Label matchesClaimsTitle =
-                new Label(
-                        "Matches & Claims Summary"
-                );
-
-        matchesClaimsTitle.setStyle(
-                "-fx-font-size: 16px;" +
-                        "-fx-font-weight: bold;"
-        );
-
-        HBox matchesRow =
-                new HBox(
-                        15,
-                        createStatCard(
-                                String.valueOf(
-                                        totalMatches
-                                ),
-                                "Total Matches"
-                        ),
-                        createStatCard(
-                                String.valueOf(
-                                        pendingMatches
-                                ),
-                                "Pending Matches"
-                        ),
-                        createStatCard(
-                                String.valueOf(
-                                        confirmedMatches
-                                ),
-                                "Confirmed Matches"
-                        ),
-                        createStatCard(
-                                String.valueOf(
-                                        rejectedMatches
-                                ),
-                                "Rejected Matches"
-                        )
-                );
-
-        HBox claimsRow =
-                new HBox(
-                        15,
-                        createStatCard(
-                                String.valueOf(
-                                        totalClaims
-                                ),
-                                "Total Claims"
-                        ),
-                        createStatCard(
-                                String.valueOf(
-                                        pendingClaimsCount
-                                ),
-                                "Pending Claims"
-                        ),
-                        createStatCard(
-                                String.valueOf(
-                                        approvedClaims
-                                ),
-                                "Approved Claims"
-                        ),
-                        createStatCard(
-                                String.valueOf(
-                                        returnedClaims
-                                ),
-                                "Returned Claims"
-                        ),
-                        createStatCard(
-                                String.valueOf(
-                                        rejectedClaims
-                                ),
-                                "Rejected Claims"
-                        )
-                );
-
-        panel.getChildren().addAll(
-                heading,
-                statsRow1,
-                statsRow2,
-                chartsRow1,
-                chartsRow2,
-                matchesClaimsTitle,
-                matchesRow,
-                claimsRow
-        );
-
-        contentArea
-                .getChildren()
-                .setAll(panel);
+        long totalMatches = allMatches.size();
+        long pendingMatches = allMatches.stream().filter(m -> "PENDING".equalsIgnoreCase(m.getStatus())).count();
+        long confirmedMatches = allMatches.stream().filter(m -> "CONFIRMED".equalsIgnoreCase(m.getStatus())).count();
+        long rejectedMatches = allMatches.stream().filter(m -> "REJECTED".equalsIgnoreCase(m.getStatus())).count();
+        long totalClaims = allClaims.size();
+        long pendingClaimsCount = allClaims.stream().filter(c -> "PENDING".equalsIgnoreCase(c.getStatus())).count();
+        long approvedClaims = allClaims.stream().filter(c -> "APPROVED".equalsIgnoreCase(c.getStatus())).count();
+        long returnedClaims = allClaims.stream().filter(c -> "RETURNED".equalsIgnoreCase(c.getStatus())).count();
+        long rejectedClaims = allClaims.stream().filter(c -> "REJECTED".equalsIgnoreCase(c.getStatus())).count();
+        Label matchesClaimsTitle = new Label("Matches & Claims Summary");
+        matchesClaimsTitle.setStyle("-fx-font-size: 16px;" + "-fx-font-weight: bold;");
+        HBox matchesRow = new HBox(15, createStatCard(String.valueOf(totalMatches), "Total Matches"),
+                        createStatCard(String.valueOf(pendingMatches), "Pending Matches"),
+                        createStatCard(String.valueOf(confirmedMatches), "Confirmed Matches"),
+                        createStatCard(String.valueOf(rejectedMatches), "Rejected Matches"));
+        HBox claimsRow = new HBox(15, createStatCard(String.valueOf(totalClaims), "Total Claims"),
+                        createStatCard(String.valueOf(pendingClaimsCount), "Pending Claims"),
+                        createStatCard(String.valueOf(approvedClaims), "Approved Claims"),
+                        createStatCard(String.valueOf(returnedClaims), "Returned Claims"),
+                        createStatCard(String.valueOf(rejectedClaims), "Rejected Claims"));
+        panel.getChildren().addAll(heading, statsRow1, statsRow2, chartsRow1, chartsRow2, matchesClaimsTitle, matchesRow, claimsRow);
+        contentArea.getChildren().setAll(panel);
     }
-
-    // ===============================================================
-    // SHARED HELPERS
-    // ===============================================================
-
-    private VBox createStatCard(
-            String number,
-            String label) {
-
-        VBox card =
-                new VBox();
-
-        card.getStyleClass()
-                .add("stat-card");
-
-        card.setMaxWidth(
-                Double.MAX_VALUE
-        );
-
-        HBox.setHgrow(
-                card,
-                Priority.ALWAYS
-        );
-
-        Label numberLabel =
-                new Label(number);
-
-        numberLabel.getStyleClass()
-                .add("stat-number");
-
+    private VBox createStatCard(String number, String label) {
+        VBox card = new VBox();
+        card.getStyleClass().add("stat-card");
+        card.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(card, Priority.ALWAYS);
+        Label numberLabel = new Label(number);
+        numberLabel.getStyleClass().add("stat-number");
         Label textLabel =
                 new Label(label);
-
-        textLabel.getStyleClass()
-                .add("stat-label");
-
+        textLabel.getStyleClass().add("stat-label");
         card.getChildren().addAll(
                 numberLabel,
-                textLabel
-        );
-
+                textLabel);
         return card;
     }
-
     private String resolveUserName(
             int userId) {
-
         User user =
                 userDao.findById(userId);
-
         return user != null
                 ? user.getName()
                 : "Unknown";
     }
-
     private String safe(
             String value) {
-
         return value == null
                 || value.trim().isEmpty()
                 ? "-"
                 : value;
     }
-
     private void showAlert(
             Alert.AlertType type,
             String title,
             String message) {
-
         Alert alert =
                 new Alert(type);
-
         alert.setTitle(title);
-
         alert.setHeaderText(null);
-
         alert.setContentText(message);
-
         alert.showAndWait();
     }
 }
