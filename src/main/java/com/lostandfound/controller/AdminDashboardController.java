@@ -346,9 +346,6 @@ public class AdminDashboardController {
                 .setAll(panel);
     }
 
-    // ===============================================================
-    // MANAGE REPORTS
-    // ===============================================================
 
     private void buildManageReports() {
 
@@ -795,10 +792,6 @@ public class AdminDashboardController {
                 .setAll(panel);
     }
 
-    // ===============================================================
-    // REPORT DETAILS
-    // ===============================================================
-
     private void showReportDetailsDialog(
             ItemReport report) {
 
@@ -942,9 +935,7 @@ public class AdminDashboardController {
         dialog.showAndWait();
     }
 
-    // ===============================================================
-    // MATCH REVIEW
-    // ===============================================================
+
 
     private void buildMatchReview() {
 
@@ -1358,7 +1349,7 @@ public class AdminDashboardController {
                 .getChildren()
                 .setAll(panel);
     }
-    // MATCH DETAILS
+
     private void showMatchDetailsDialog(
             MatchView mv) {
 
@@ -1659,10 +1650,6 @@ public class AdminDashboardController {
         return row;
     }
 
-    // ===============================================================
-    // CLAIM VERIFICATION
-    // ===============================================================
-
     private void buildClaimVerification() {
         VBox panel = new VBox(15);
         Label heading = new Label("Claim Verification");
@@ -1718,9 +1705,7 @@ public class AdminDashboardController {
                 .setAll(panel);
     }
 
-    // ===============================================================
-    // CLAIM CARD
-    // ===============================================================
+
 
     private VBox buildClaimCard(
             Claim claim) {
@@ -1822,9 +1807,6 @@ public class AdminDashboardController {
         );
         HBox actions =
                 new HBox(8);
-        // -----------------------------------------------------------
-        // APPROVE
-        // -----------------------------------------------------------
         Button approveBtn =
                 new Button("Approve");
         approveBtn.getStyleClass().add("success-button");
@@ -1849,8 +1831,7 @@ public class AdminDashboardController {
                             "Failed to approve claim " + claim.getClaimId()
                     );
                 }
-                // Match stays CONFIRMED; the two linked reports move from
-                // MATCHED to CLAIMED now that the claim is approved.
+
                 markReportClaimed(approvalMatch.getLostReportId());
                 markReportClaimed(approvalMatch.getFoundReportId());
                 approvedOk[0] = true;
@@ -1866,9 +1847,7 @@ public class AdminDashboardController {
             }
             handleClaimVerification();
         });
-        // -----------------------------------------------------------
-        // REJECT
-        // -----------------------------------------------------------
+
         Button rejectBtn = new Button("Reject");
         rejectBtn.getStyleClass().add("danger-button");
         rejectBtn.setOnAction(e -> {
@@ -1882,21 +1861,19 @@ public class AdminDashboardController {
         card.getChildren().add(actions);return card;
     }
 
-    // ===============================================================
-    // RETURNS / CLOSURE
-    // ===============================================================
-
     private void buildReturnsClosure() {
         VBox panel = new VBox(15);
-        Label heading = new Label("Returns / Closure");
+        Label heading = new Label("Returns / Closure History");
         heading.getStyleClass().add("dashboard-heading");
 
         Label note = new Label("Confirm physical return for approved claims. " + "Returned claims remain visible as closure history.");
         note.getStyleClass().add("section-note");
         note.setWrapText(true);
-        List<Claim> relevantClaims =
-                claimDao.findAll().stream().filter(c -> "APPROVED".equalsIgnoreCase(c.getStatus()) || "RETURNED".equalsIgnoreCase(c.getStatus()
-                                                )).collect(Collectors.toList());
+        List<Claim> relevantClaims = claimDao.findAll().stream()
+                .filter(c -> "APPROVED".equalsIgnoreCase(c.getStatus())
+                        || "RETURNED".equalsIgnoreCase(c.getStatus())
+                        || "REJECTED".equalsIgnoreCase(c.getStatus()))
+                .collect(Collectors.toList());
 
         VBox listBox = new VBox(12);
         if (relevantClaims.isEmpty()) {Label emptyLabel =
@@ -1911,7 +1888,7 @@ public class AdminDashboardController {
         panel.getChildren().addAll(heading, note, listBox);
         contentArea.getChildren().setAll(panel);
     }
-    // RETURN CLAIM CARD
+
     private VBox buildReturnClaimCard(Claim claim) {
         VBox card = new VBox(8);
         card.setStyle("-fx-background-color: white;" + "-fx-background-radius: 10;" + "-fx-padding: 15;" +
@@ -2000,17 +1977,7 @@ public class AdminDashboardController {
         return card;
     }
 
-    // ===============================================================
-    // UPDATE REPORT TO CLAIMED
-    // ===============================================================
 
-    /**
-     * Moves a report from MATCHED to CLAIMED once its claim is approved.
-     * This is the missing link that previously left reports stuck at
-     * MATCHED forever: without it, Return Confirmation could never
-     * legally transition a report to RETURNED (a report can only be
-     * returned once it has been claimed).
-     */
     private void markReportClaimed(int reportId) {
 
         ItemReport report =
@@ -2035,9 +2002,7 @@ public class AdminDashboardController {
             throw new IllegalStateException("Report " + reportId + " is not in a claimable state (" + report.getStatus() + ")", e);
         }
     }
-    // ===============================================================
-    // UPDATE REPORT TO RETURNED
-    // ===============================================================
+
     private void updateReportToReturned(int reportId) {
         ItemReport report = itemReportDao.findById(reportId);
         if (report == null) {
@@ -2049,20 +2014,12 @@ public class AdminDashboardController {
                     newState.getName());
         } catch (IllegalStateException e) {
 
-            // Previously swallowed silently, which let a claim become
-            // RETURNED while its report stayed stuck at an earlier status.
-            // Now propagated so the surrounding transaction rolls back and
-            // the admin sees the failure instead of a silent partial update.
             throw new IllegalStateException(
                     "Report " + reportId + " could not be marked returned ("
                             + report.getStatus() + ")", e
             );
         }
     }
-
-    // ===============================================================
-    // USER MANAGEMENT
-    // ===============================================================
 
     private void buildUserManagement() {
 
@@ -2109,9 +2066,6 @@ public class AdminDashboardController {
         contentArea.getChildren().setAll(panel);
     }
 
-    // ===============================================================
-    // REPORTS & ANALYTICS
-    // ===============================================================
 
     private void buildReportsAnalytics() {
         VBox panel = new VBox(20);
@@ -2195,7 +2149,7 @@ public class AdminDashboardController {
                                 "Resolution Rate"
                         )
                 );
-        // STATUS CHART
+
         BarChart<String, Number> statusChart =
                 new BarChart<>(
                         new CategoryAxis(),
@@ -2224,7 +2178,7 @@ public class AdminDashboardController {
         statusChart.getData()
                 .add(statusSeries);
 
-        // LOST VS FOUND
+
         PieChart typeChart =
                 new PieChart();
         typeChart.setTitle(
@@ -2292,7 +2246,7 @@ public class AdminDashboardController {
         HBox chartsRow2 = new HBox(20, categoryChart, locationChart);
         HBox.setHgrow(categoryChart, Priority.ALWAYS);
         HBox.setHgrow(locationChart, Priority.ALWAYS);
-        // MATCH & CLAIM SUMMARY
+
         long totalMatches = allMatches.size();
         long pendingMatches = allMatches.stream().filter(m -> "PENDING".equalsIgnoreCase(m.getStatus())).count();
         long confirmedMatches = allMatches.stream().filter(m -> "CONFIRMED".equalsIgnoreCase(m.getStatus())).count();

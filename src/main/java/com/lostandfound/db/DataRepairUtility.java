@@ -21,34 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * One-time repair pass for data that was written by earlier, buggy versions
- * of the matching/claim/return workflow (before reports were only ever
- * moved to MATCHED/CLAIMED/RETURNED by explicit Admin actions).
- *
- * This is NOT a reseed and NEVER deletes a record. It only:
- *   1. Backs up the physical SQLite file before touching anything.
- *   2. Recomputes, per report and per match, the status that the actual
- *      stored relationships (Match -> Claim) support, using the same
- *      REPORTED < MATCHED < CLAIMED < RETURNED ordering the app now
- *      enforces going forward.
- *   3. Only ever repairs a record UPWARD to a status the data can prove -
- *      e.g. a report sitting at MATCHED with an APPROVED claim on its
- *      match is missing the CLAIMED transition and is corrected.
- *   4. Never guesses a downgrade. If a report/match already shows a
- *      *higher* status than the stored Match/Claim rows can justify (or a
- *      report has no Match row referencing it at all while sitting above
- *      REPORTED), it is left untouched and flagged in the report for
- *      manual Admin review instead.
- *   5. Runs at most once per database (tracked in app_migrations) and
- *      applies all writes in a single transaction.
- */
+
 public final class DataRepairUtility {
 
     private static final String MIGRATION_NAME = "data_repair_v1_report_match_claim_sync";
     private static final String DB_FILE_NAME = "lostandfound.db";
 
-    // Report status ranking used to decide "upgrade" vs "downgrade".
+
     private static final int RANK_REPORTED = 0;
     private static final int RANK_MATCHED = 1;
     private static final int RANK_CLAIMED = 2;
@@ -67,11 +46,7 @@ public final class DataRepairUtility {
         this.claimDao = claimDao;
     }
 
-    /**
-     * Entry point called once at application startup, after the schema has
-     * been initialized. No-ops immediately if this migration already ran
-     * against this database file.
-     */
+
     public static void runOnce() {
         if (alreadyApplied()) {
             System.out.println("Data repair already applied - skipping.");
@@ -92,9 +67,7 @@ public final class DataRepairUtility {
         System.out.println("Data repair complete. Full report written to data_repair_report.txt");
     }
 
-    // =================================================================
-    // MIGRATION BOOKKEEPING
-    // =================================================================
+
 
     private static boolean alreadyApplied() {
         String sql = "SELECT 1 FROM app_migrations WHERE migration_name = ?";
@@ -148,15 +121,6 @@ public final class DataRepairUtility {
         }
     }
 
-    // =================================================================
-    // RECONCILIATION
-    // =================================================================
-
-    /**
-     * Runs the reconciliation and returns a human-readable report. All
-     * writes happen inside a single transaction: either every repair is
-     * applied, or none are.
-     */
     public String reconcile() {
         List<ItemReport> reports = itemReportDao.findAll();
         List<Match> matches = matchDao.findAll();
@@ -172,8 +136,6 @@ public final class DataRepairUtility {
             claimsByMatch.computeIfAbsent(c.getMatchId(), k -> new ArrayList<>()).add(c);
         }
 
-        // Desired match-status repairs, and the report-rank each match
-        // justifies for its two linked reports.
         Map<Integer, String> matchStatusRepairs = new HashMap<>();      // matchId -> new status
         Map<Integer, Integer> reportDesiredRank = new HashMap<>();      // reportId -> max justified rank
         Map<Integer, String> reportEvidence = new HashMap<>();          // reportId -> reason for its rank
@@ -181,9 +143,6 @@ public final class DataRepairUtility {
 
         for (Match m : matches) {
 
-            // Invalid self-match: cannot be a legitimate pair. Never valid
-            // historical data, so it is safe to correct rather than merely
-            // flag - it is corrupted, not ambiguous.
             if (m.getLostReportId() == m.getFoundReportId()) {
                 if (!"REJECTED".equalsIgnoreCase(m.getStatus())) {
                     repairs.add(String.format(
@@ -216,8 +175,7 @@ public final class DataRepairUtility {
                 desiredMatchStatus = "CONFIRMED";
                 reason = "linked claim is PENDING (match #" + m.getMatchId() + ")";
             } else if (hasStatus(matchClaims, "REJECTED")) {
-                // The claim was rejected, not the match - a claim can only
-                // ever have been filed against a match that was CONFIRMED.
+
                 rank = RANK_MATCHED;
                 desiredMatchStatus = "CONFIRMED";
                 reason = "has a REJECTED claim, so the match must have been CONFIRMED when it was filed (match #"
@@ -227,8 +185,7 @@ public final class DataRepairUtility {
                 desiredMatchStatus = "CONFIRMED";
                 reason = "match #" + m.getMatchId() + " is CONFIRMED with no claim yet";
             } else {
-                // PENDING or REJECTED with no claim at all: no evidence
-                // this report should be MATCHED because of this match.
+
                 rank = -1;
                 desiredMatchStatus = m.getStatus();
                 reason = null;
@@ -260,10 +217,6 @@ public final class DataRepairUtility {
                         reportEvidence.get(r.getReportId())));
                 reportStatusRepairs.put(r.getReportId(), newStatus);
             } else if (currentRank > RANK_REPORTED && (desiredRank == null || desiredRank < currentRank)) {
-                // Report claims a higher status than its matches/claims can
-                // currently justify. Could be legitimate history the match
-                // rows don't fully capture (e.g. a match row was later
-                // altered) - do not guess, flag for Admin review instead.
                 if (!hasMatch) {
                     flaggedForReview.add(String.format(
                             "Report #%d (\"%s\") is %s but has NO match record referencing it at all - "
@@ -278,9 +231,6 @@ public final class DataRepairUtility {
             }
         }
 
-        // Detect duplicate match rows for the same pair (only possible on
-        // databases created before the UNIQUE(lost_report_id, found_report_id)
-        // constraint existed). Never merged/deleted automatically.
         Map<String, List<Integer>> pairToMatchIds = new HashMap<>();
         for (Match m : matches) {
             String key = m.getLostReportId() + ":" + m.getFoundReportId();
@@ -293,7 +243,7 @@ public final class DataRepairUtility {
             }
         }
 
-        // Apply all writes atomically.
+
         if (!matchStatusRepairs.isEmpty() || !reportStatusRepairs.isEmpty()) {
             DatabaseConnection.runInTransaction(() -> {
                 for (Map.Entry<Integer, String> e : matchStatusRepairs.entrySet()) {

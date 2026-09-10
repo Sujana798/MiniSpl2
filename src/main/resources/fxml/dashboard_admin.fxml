@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.ScrollPane?>
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.lostandfound.controller.AdminDashboardController"
             stylesheets="@../css/style.css" styleClass="root">
@@ -31,8 +32,9 @@
             <Button text="🔔 Notifications" onAction="#handleNotifications" maxWidth="Infinity" styleClass="sidebar-button"/>
         </VBox>
     </left>
-
     <center>
-        <VBox fx:id="contentArea" spacing="20" style="-fx-padding: 30; -fx-background-color: #f4f6f8;"/>
+        <ScrollPane fitToWidth="true" style="-fx-background: #f4f6f8; -fx-background-color: transparent;">
+            <VBox fx:id="contentArea" spacing="20" style="-fx-padding: 30; -fx-background-color: #f4f6f8;"/>
+        </ScrollPane>
     </center>
 </BorderPane>
