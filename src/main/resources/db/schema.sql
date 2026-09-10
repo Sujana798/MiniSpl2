@@ -65,3 +65,8 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+CREATE TABLE IF NOT EXISTS app_migrations (
+                                              migration_name TEXT PRIMARY KEY,
+                                              applied_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                                              summary TEXT
+);

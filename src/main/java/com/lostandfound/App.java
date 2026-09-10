@@ -5,6 +5,7 @@ import com.lostandfound.dao.MatchDao;
 import com.lostandfound.dao.UserDao;
 import com.lostandfound.db.DatabaseConnection;
 import com.lostandfound.db.DatabaseInitializer;
+import com.lostandfound.db.DataRepairUtility;
 import com.lostandfound.db.DatabaseSeeder;
 import com.lostandfound.service.MatchService;
 import com.lostandfound.service.WeightedMatchingStrategy;
@@ -23,6 +24,7 @@ public class App extends Application {
     public void start(Stage primaryStage) throws Exception {
         DatabaseConnection.getConnection();
         DatabaseInitializer.initialize();
+        DataRepairUtility.runOnce();
         DatabaseSeeder.seed();
         NotificationPublisher.getInstance().subscribe(new InAppNotificationObserver(new NotificationDao()));
 

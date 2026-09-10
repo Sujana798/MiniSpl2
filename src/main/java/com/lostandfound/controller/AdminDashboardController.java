@@ -61,12 +61,10 @@ public class AdminDashboardController {
 
     @FXML
     private Label welcomeLabel;
-
     @FXML
     private VBox contentArea;
 
     private User currentUser;
-
     private final UserDao userDao = new UserDao();
     private final ItemReportDao itemReportDao = new ItemReportDao();
     private final MatchDao matchDao = new MatchDao();
@@ -80,10 +78,6 @@ public class AdminDashboardController {
                     new WeightedMatchingStrategy(),
                     userDao
             );
-
-    // ===============================================================
-    // Current User
-    // ===============================================================
 
     public void setCurrentUser(User user) {
 
@@ -101,21 +95,14 @@ public class AdminDashboardController {
 
         handleDashboardOverview();
     }
-
-    // ===============================================================
-    // SIDEBAR NAVIGATION
-    // ===============================================================
-
     @FXML
     private void handleDashboardOverview() {
         buildDashboardOverview();
     }
-
     @FXML
     private void handleManageReports() {
         buildManageReports();
     }
-
     @FXML
     private void handleMatchReview() {
         buildMatchReview();
@@ -136,12 +123,10 @@ public class AdminDashboardController {
     private void handleUserManagement() {
         buildUserManagement();
     }
-
     @FXML
     private void handleAnalytics() {
         buildReportsAnalytics();
     }
-
     @FXML
     private void handleNotifications() {
 
@@ -169,7 +154,6 @@ public class AdminDashboardController {
 
             return;
         }
-
         for (Notification notification : notifications) {
 
             contentArea.getChildren().add(
@@ -177,43 +161,30 @@ public class AdminDashboardController {
             );
         }
     }
-
-    // ===============================================================
-    // ADMIN NOTIFICATION CARD
-    // ===============================================================
-
     private VBox buildAdminNotificationCard(
             Notification notification) {
-
         VBox card = new VBox(6);
-
         String bgColor =
                 notification.isRead()
                         ? "white"
                         : "#eaf2fb";
-
         card.setStyle(
                 "-fx-background-color: " + bgColor + ";" +
                         "-fx-background-radius: 10;" +
                         "-fx-padding: 15;" +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
         );
-
         Label messageLabel =
                 new Label(notification.getMessage());
-
         messageLabel.setStyle(
                 "-fx-font-size: 13px;" +
                         (notification.isRead()
                                 ? ""
                                 : "-fx-font-weight: bold;")
         );
-
         messageLabel.setWrapText(true);
-
         Label timeLabel =
                 new Label(notification.getCreatedAt());
-
         timeLabel.setStyle(
                 "-fx-font-size: 11px;" +
                         "-fx-text-fill: #999;"
@@ -225,20 +196,16 @@ public class AdminDashboardController {
         );
 
         if (!notification.isRead()) {
-
             Button markReadBtn =
                     new Button("Mark as Read");
-
             markReadBtn
                     .getStyleClass()
                     .add("secondary-button");
-
             markReadBtn.setOnAction(e -> {
 
                 notificationDao.markAsRead(
                         notification.getNotificationId()
                 );
-
                 handleNotifications();
             });
 
@@ -247,38 +214,26 @@ public class AdminDashboardController {
 
         return card;
     }
-
-    // ===============================================================
-    // LOGOUT
-    // ===============================================================
-
     @FXML
     private void handleLogout(ActionEvent event) {
-
         try {
-
             Parent root =
                     FXMLLoader.load(
                             getClass()
                                     .getResource("/fxml/login.fxml")
                     );
-
             Stage stage =
                     (Stage)
                             ((Node) event.getSource())
                                     .getScene()
                                     .getWindow();
-
             stage.setScene(
                     new Scene(root, 500, 500)
             );
-
             stage.setTitle(
                     "Campus Lost & Found - Login"
             );
-
         } catch (IOException e) {
-
             showAlert(
                     Alert.AlertType.ERROR,
                     "Navigation Error",
@@ -286,24 +241,14 @@ public class AdminDashboardController {
             );
         }
     }
-
-    // ===============================================================
-    // DASHBOARD OVERVIEW
-    // ===============================================================
-
     private void buildDashboardOverview() {
-
         VBox panel = new VBox(20);
-
         Label heading =
                 new Label("Admin Dashboard Overview");
-
         heading.getStyleClass()
                 .add("dashboard-heading");
-
         int totalUsers =
                 userDao.getAllUsers().size();
-
         int totalStudents =
                 userDao.countByRole("STUDENT");
 
